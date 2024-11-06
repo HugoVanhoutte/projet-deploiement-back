@@ -15,8 +15,27 @@ class AdsRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Ads::class);
     }
-
-//    /**
+    public function deleteByIdUser(int $id, int $userId)
+{
+    return $this->createQueryBuilder('a')
+        ->where("a.id = :id")
+        ->andWhere("a.user = :userId")
+        ->setParameter("id", $id)
+        ->setParameter("userId", $userId)
+        ->getQuery()
+        ->getResult();
+    }
+    public function isVerified($adsId)
+    {
+        return $this->createQueryBuilder('a')
+        ->update()
+        ->set('a.isVerified', '1')
+        ->where("a.id = :adsId")
+        ->setParameter("adsId", $adsId)
+        ->getQuery()
+        ->execute();
+    }
+    //    /**
 //     * @return Ads[] Returns an array of Ads objects
 //     */
 //    public function findByExampleField($value): array

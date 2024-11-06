@@ -184,8 +184,29 @@ class MediaObject
     #[Groups(['media_object:read','media_object:write' ])]
     public ?string $filePath = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Ads $ads = null;
+
+   
+
     public function getId(): ?int
     {
         return $this->id;
     }
+
+    public function getAds(): ?Ads
+    {
+        return $this->ads;
+    }
+
+    public function setAds(?Ads $ads): static
+    {
+        $this->ads = $ads;
+
+        return $this;
+    }
+
+
+  
 }

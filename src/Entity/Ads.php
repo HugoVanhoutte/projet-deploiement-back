@@ -23,8 +23,17 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new Get(), // conserver l'opération de lecture
         new Post(), // conserver l'opération de création
-        new Put(), // conserver l'opération de mise à jour
-        new Delete(), // conserver l'opération de suppression
+        new Put(
+            description: "Delete an ads.", 
+            uriTemplate: '/api/ads/verified/{adsId}',
+            name:'app_ads_admin_changeVerfied',
+        ), // conserver l'opération de mise à jour
+        new delete(),
+        new Delete( 
+            description: "Delete an ads.", 
+            uriTemplate: '/api/ads/delete/{adsId}/{userId}',
+            name:'app_ads_delete',
+        ), 
         new Post(   
             description: "Create an ads.", 
             uriTemplate: '/api/ads/create',
