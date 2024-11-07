@@ -19,12 +19,6 @@ class SecurityController extends AbstractController
             ], Response::HTTP_UNAUTHORIZED);
         }
 
-        // Vérifier le rôle "ROLE_ADMIN" dans la liste des rôles de l'utilisateur
-        // if (!in_array('ROLE_ADMIN', $user->getRoles(), true)) {
-        //     return $this->json([
-        //         'message' => 'Access denied. Admin role required.',
-        //     ], Response::HTTP_FORBIDDEN);
-        // }
 
         // Retourner les informations utilisateur sans générer de token
         return $this->json([

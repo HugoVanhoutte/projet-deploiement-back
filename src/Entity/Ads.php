@@ -21,7 +21,11 @@ use Symfony\Component\Validator\Constraints as Assert;
     normalizationContext:['groups' => ['ads:read']],
     denormalizationContext:['groups' => ['ads:write']],
     operations: [
-        new Get(), 
+        new Get(
+            security: "is_granted('ROLE_ADMIN')",
+            uriTemplate: '/api/ads/admin/detail/{id}',
+            name:"app_ads_admin_detail"
+        ), 
         new Get(
             security: "is_granted('ROLE_ADMIN')",
             description: "List all  ads.", 
@@ -29,10 +33,14 @@ use Symfony\Component\Validator\Constraints as Assert;
             name:'app_ads_admin_listing'
         ),
         new Get(
-
-            description: "List all  ads  with isvirefied is ok.", 
+           // description: "List all  ads  with isvirefied is ok.", 
             uriTemplate: '/api/ads/listing',
             name:'app_ads_listing'
+        ),
+        new Get(
+            description: "List all  ads  with isvirefied is ok.", 
+            uriTemplate: '/api/ads/admin/detail/{id}',
+            name:'app_ads_admin_detail'
         ),
         new Post(), // conserver l'opération de création
         new Put(

@@ -112,7 +112,7 @@ class AdsController extends AbstractController
 
         $adsData = array_map(function ($ad) {
         return [
-            "id"=>$ad->getid(),
+            "id"=>$ad->getId(),
             'title' => $ad->getTitle(),
             'userName' => $ad->getUserName(),
             
@@ -140,7 +140,7 @@ class AdsController extends AbstractController
 
         $adsData = array_map(function ($ad) {
         return [
-            "id"=>$ad->getid(),
+            "id"=>$ad->getId(),
             'title' => $ad->getTitle(),
             'userName' => $ad->getUserName(),
             "price"=> $ad->getPrice(),
@@ -148,6 +148,36 @@ class AdsController extends AbstractController
         ];
     }, $result);
         if($result>0){
+            return new Response(
+                json_encode(["result" => $adsData]),
+                Response::HTTP_OK,
+                ['Content-Type' => 'application/json']
+            );
+        }else{
+            return new JsonResponse(
+                ['errors' => "ads non connu"],
+                Response::HTTP_BAD_REQUEST
+            );
+        }     
+    }
+
+
+    #[Route('/api/ads/admin/detail/{id}', name: 'app_ads_admin_detail', methods :["GET"])]
+    public function detailAdminAds(int $id, AdsRepository $adsRepository): Response
+    {
+        $result = $adsRepository->findAdsByIAdmin($id);
+
+        $adsData = array_map(function ($ad) {[
+            "id"=>$ad->getId(),
+            'title' => $ad->getTitle(),
+
+            "price"=> $ad->getPrice(),
+            "description"=>$ad->getDescription()
+            
+            ];
+        }, $result);
+            
+        if($result){
             return new Response(
                 json_encode(["result" => $adsData]),
                 Response::HTTP_OK,

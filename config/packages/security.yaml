@@ -1,15 +1,61 @@
+# security:
+#     password_hashers:
+#         App\Entity\User:
+#             algorithm: auto
+
+
+#     providers:
+#         app_user_provider:
+#             entity:
+#                 class: App\Entity\User
+#                 property: email
+#         # used to reload user from session & other features (e.g. switch_user)
+
+#     firewalls:
+#         dev:
+#             pattern: ^/(_(profiler|wdt)|css|images|js)/
+#             security: false
+
+#         login:
+#           pattern:  ^/api/login
+#           stateless: true
+#           json_login:
+#             check_path: /api/login
+#             username_path: email
+#             password_path: password
+#             success_handler: lexik_jwt_authentication.handler.authentication_success
+#             failure_handler: lexik_jwt_authentication.handler.authentication_failure
+#         api:
+#             pattern: ^/api
+#             stateless: true
+#             jwt: ~
+
+#     access_control:
+#         #ADMIN
+#         - { path: ^/api/users/:id ,       roles: ROLE_ADMIN }
+#         - { path: ^/api/ads/:id ,       roles: ROLE_ADMIN }
+#         - { path: ^/api/ads/verified/:adsId ,       roles: ROLE_ADMIN }
+#         #- { path: ^/api/ads/admin/listing ,       roles: ROLE_ADMIN }
+#         #######
+#         #USER 
+#         - { path: ^/api/user/update/:id ,       roles: ROLE_USER }
+#         - { path: ^/api/user/delete/:id ,       roles: ROLE_USER }
+        
+#         #####
+#         - { path: ^/$, roles: PUBLIC_ACCESS } # Allows accessing the Swagger UI
+#         - { path: ^/docs, roles: PUBLIC_ACCESS } # Allows accessing API documentations and Swagger UI docs
+#         - { path: ^/api/login, roles: PUBLIC_ACCESS }
+#         - { path: ^/api, roles: PUBLIC_ACCESS }
 security:
     password_hashers:
         App\Entity\User:
             algorithm: auto
-
 
     providers:
         app_user_provider:
             entity:
                 class: App\Entity\User
                 property: email
-        # used to reload user from session & other features (e.g. switch_user)
 
     firewalls:
         dev:
@@ -17,32 +63,31 @@ security:
             security: false
 
         login:
-          pattern:  ^/api/login
-          stateless: true
-          json_login:
-            check_path: /api/login
-            username_path: email
-            password_path: password
-            success_handler: lexik_jwt_authentication.handler.authentication_success
-            failure_handler: lexik_jwt_authentication.handler.authentication_failure
+            pattern:  ^/api/login
+            stateless: true
+            json_login:
+                check_path: /api/login
+                username_path: email
+                password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+
         api:
             pattern: ^/api
             stateless: true
             jwt: ~
 
     access_control:
-        #ADMIN
-        - { path: ^/api/user/update/:id ,       roles: ROLE_ADMIN }
-        - { path: ^/api/users/:id ,       roles: ROLE_ADMIN }
-        - { path: ^/api/ads/:id ,       roles: ROLE_ADMIN }
-        - { path: ^/api/ads/verified/:adsId ,       roles: ROLE_ADMIN }
+        # ADMIN
+        - { path: ^/api/users/:id, roles: ROLE_ADMIN }
+        - { path: ^/api/ads/admin/detail/:id, roles: ROLE_ADMIN }
+        - { path: ^/api/ads/verified/:adsId, roles: ROLE_ADMIN }
         - { path: ^/api/ads/admin/listing ,       roles: ROLE_ADMIN }
-        #######
-        #USER 
-        - { path: ^/api/user/update/:id ,       roles: ROLE_USER }
-        - { path: ^/api/user/delete/:id ,       roles: ROLE_USER }
-        
-        #####
-       # - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        
-        #- { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }
+        # USER
+        - { path: ^/api/user/update/:id, roles: ROLE_USER }
+        - { path: ^/api/user/delete/:id, roles: ROLE_USER }
+
+        # Public Access
+        - { path: ^/$, roles: PUBLIC_ACCESS }
+        - { path: ^/docs, roles: PUBLIC_ACCESS }
+        - { path: ^/api/login, roles: PUBLIC_ACCESS }

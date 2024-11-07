@@ -51,11 +51,31 @@ class AdsRepository extends ServiceEntityRepository
    }
    public function findAllByVerified():array{
     return $this->createQueryBuilder('a')
-        ->select('NEW App\\DTO\\adsListingUserDTO(a.id, a.title,a.price,a.description u.userName)')
+        ->select('NEW App\\DTO\\adsListingUserDTO(a.id, a.title,a.price,a.description ,u.userName)')
         ->innerJoin("a.user","u")
         ->where('a.isVerified =1')
         ->getQuery()
         ->getResult();
+   }
+   public function findAdsByIAdmin($id):array{
+    return $this->createQueryBuilder('a')
+    ->select('NEW App\\DTO\\findAdsByIAdminDTO(
+    a.id, 
+    a.title,
+    a.price,
+    a.description ,
+    a.zipCode,
+    a.width,
+    a.length,
+    a.height,
+    a.isVerified,
+    u.userName,
+    i.filePath)')
+    ->innerJoin("a.user","u")
+    ->innerJoin("MediaObject.ads", "i")
+
+    ->getQuery()
+    ->getResult();
    }
     //    /**
 //     * @return Ads[] Returns an array of Ads objects
