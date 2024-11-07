@@ -13,19 +13,33 @@ use ApiPlatform\Metadata\ApiResource;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use ApiPlatform\Symfony\Bundle\SwaggerUi\SwaggerUiContext;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
+
 #[ApiResource(
     normalizationContext:['groups' => ['user:read']],
     denormalizationContext:['groups' => ['user:write']],
     operations: [
-        new Get(), // conserver l'opération de lecture
-        new Post(), // conserver l'opération de création
-        new Put(), // conserver l'opération de mise à jour
-        new Delete(), // conserver l'opération de suppression
+        new Get(), 
+        new Post(), 
+        new Put(
+            security: "is_granted('ROLE_USER')",
+            description: "Updete his account", 
+            uriTemplate: '/api/user/update/{id}',
+            name:'app_user_update'
+        ), 
+        new Delete(
+            security: "is_granted('ROLE_USER')",
+            description: "Delete his account", 
+            uriTemplate: '/api/user/delete/{id}',
+            name:'app_user_delete'
+        ),
+        new Delete(security: "is_granted('ROLE_ADMIN')"), // conserver l'opération de suppression
         new Post(   
             description: "Enregistre un nouveau client.", 
             uriTemplate: '/api/user/register',
@@ -76,6 +90,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:read','user:write'])]
     private ?string $lastName = null;
 
+
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Ads::class, cascade: ['remove'], orphanRemoval: true)]
+private Collection $ads;
     /**
      * @var Collection<int, Ads>
      */

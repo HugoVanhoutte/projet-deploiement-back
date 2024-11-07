@@ -85,7 +85,7 @@ class AdsController extends AbstractController
     }
 
     #[Route('/api/ads/verified/{adsId}', name: 'app_ads_admin_changeVerfied')]
-    //#[IsGranted(new Expression('is_granted("ROLE_ADMIN")'))]
+    #[IsGranted(new Expression('is_granted("ROLE_ADMIN")'))]
     public function changeIsVerified(int $adsId, AdsRepository $adsRepository): Response
     {
         $result = $adsRepository->isVerified($adsId);
@@ -93,6 +93,35 @@ class AdsController extends AbstractController
             return new Response(
                 json_encode(["message" => "Ad  state changed successfully"]),
                 Response::HTTP_CREATED,
+                ['Content-Type' => 'application/json']
+            );
+        }else{
+            return new JsonResponse(
+                ['errors' => "ads non connu"],
+                Response::HTTP_BAD_REQUEST
+            );
+        }     
+    }
+
+
+    #[Route('/api/ads/admin/listing', name: 'app_ads_admin_listing')]
+    #[IsGranted(new Expression('is_granted("ROLE_ADMIN")'))]
+    public function listIsVerified( AdsRepository $adsRepository): Response
+    {
+        $result = $adsRepository->findAllByUser();
+
+        $adsData = array_map(function ($ad) {
+        return [
+            "id"=>$ad->getid(),
+            'title' => $ad->getTitle(),
+            'userName' => $ad->getUserName(),
+            
+        ];
+    }, $result);
+        if($result>0){
+            return new Response(
+                json_encode(["result" => $adsData]),
+                Response::HTTP_OK,
                 ['Content-Type' => 'application/json']
             );
         }else{

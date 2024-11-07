@@ -143,6 +143,8 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
         new Get(),
         new GetCollection(),
         new Post(
+            uriTemplate: '/api/upload',
+            name:'app_upload_image',
             inputFormats: ['multipart' => ['multipart/form-data']],
             openapi: new Model\Operation(
                 requestBody: new Model\RequestBody(
@@ -188,6 +190,8 @@ class MediaObject
     #[ORM\JoinColumn(nullable: false)]
     private ?Ads $ads = null;
 
+  
+
    
 
     public function getId(): ?int
@@ -206,6 +210,9 @@ class MediaObject
 
         return $this;
     }
+
+
+
 
 
   

@@ -31,5 +31,18 @@ security:
             jwt: ~
 
     access_control:
+        #ADMIN
+        - { path: ^/api/user/update/:id ,       roles: ROLE_ADMIN }
+        - { path: ^/api/users/:id ,       roles: ROLE_ADMIN }
+        - { path: ^/api/ads/:id ,       roles: ROLE_ADMIN }
+        - { path: ^/api/ads/verified/:adsId ,       roles: ROLE_ADMIN }
+        - { path: ^/api/ads/admin/listing ,       roles: ROLE_ADMIN }
+        #######
+        #USER 
+        - { path: ^/api/user/update/:id ,       roles: ROLE_USER }
+        - { path: ^/api/user/delete/:id ,       roles: ROLE_USER }
+        
+        #####
        # - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        
         #- { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }

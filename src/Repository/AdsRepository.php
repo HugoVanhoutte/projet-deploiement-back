@@ -35,6 +35,20 @@ class AdsRepository extends ServiceEntityRepository
         ->getQuery()
         ->execute();
     }
+    public function test($adsId){
+        return $this->createQueryBuilder('a')
+            ->where('a.id = :value')  // remplacez `field` par le champ que vous souhaitez filtrer
+            ->setParameter('value', $adsId)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+   public function findAllByUser():array{
+    return $this->createQueryBuilder('a')
+        ->select('NEW App\\DTO\\adsDTO(a.id, a.title, u.userName)')
+        ->innerJoin("a.user","u")
+        ->getQuery()
+        ->getResult();
+   }
     //    /**
 //     * @return Ads[] Returns an array of Ads objects
 //     */

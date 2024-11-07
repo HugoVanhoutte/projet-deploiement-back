@@ -21,14 +21,20 @@ use Symfony\Component\Validator\Constraints as Assert;
     normalizationContext:['groups' => ['ads:read']],
     denormalizationContext:['groups' => ['ads:write']],
     operations: [
-        new Get(), // conserver l'opération de lecture
+        new Get(), 
+        new Get(
+            security: "is_granted('ROLE_ADMIN')",
+            description: "List all  ads.", 
+            uriTemplate: '/api/ads/admin/listing',
+            name:'app_ads_admin_listing'
+        ),
         new Post(), // conserver l'opération de création
         new Put(
             description: "Delete an ads.", 
             uriTemplate: '/api/ads/verified/{adsId}',
             name:'app_ads_admin_changeVerfied',
         ), // conserver l'opération de mise à jour
-        new delete(),
+        new delete(security: "is_granted('ROLE_ADMIN')"),
         new Delete( 
             description: "Delete an ads.", 
             uriTemplate: '/api/ads/delete/{adsId}/{userId}',
@@ -84,9 +90,9 @@ class Ads
     #[Groups(['ads:read','ads:write'])]
     private ?bool $isVerified = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'ads', fetch: 'EXTRA_LAZY', cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['ads:read','ads:write'])]
+    #[Groups(['ads:read', 'ads:write'])]
     private ?User $user = null;
 
     /**
