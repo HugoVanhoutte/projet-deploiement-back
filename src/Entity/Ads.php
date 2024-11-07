@@ -28,6 +28,12 @@ use Symfony\Component\Validator\Constraints as Assert;
             uriTemplate: '/api/ads/admin/listing',
             name:'app_ads_admin_listing'
         ),
+        new Get(
+
+            description: "List all  ads  with isvirefied is ok.", 
+            uriTemplate: '/api/ads/listing',
+            name:'app_ads_listing'
+        ),
         new Post(), // conserver l'opération de création
         new Put(
             description: "Delete an ads.", 

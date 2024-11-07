@@ -131,4 +131,33 @@ class AdsController extends AbstractController
             );
         }     
     }
+
+
+    #[Route('/api/ads/listing', name: 'app_ads_listing', methods :["GET"])]
+    public function listAllAds( AdsRepository $adsRepository): Response
+    {
+        $result = $adsRepository->findAllByVerified();
+
+        $adsData = array_map(function ($ad) {
+        return [
+            "id"=>$ad->getid(),
+            'title' => $ad->getTitle(),
+            'userName' => $ad->getUserName(),
+            "price"=> $ad->getPrice(),
+            "description"=>$ad->getDescription()
+        ];
+    }, $result);
+        if($result>0){
+            return new Response(
+                json_encode(["result" => $adsData]),
+                Response::HTTP_OK,
+                ['Content-Type' => 'application/json']
+            );
+        }else{
+            return new JsonResponse(
+                ['errors' => "ads non connu"],
+                Response::HTTP_BAD_REQUEST
+            );
+        }     
+    }
 }
