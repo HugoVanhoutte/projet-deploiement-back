@@ -21,11 +21,11 @@ use Symfony\Component\Validator\Constraints as Assert;
     normalizationContext:['groups' => ['ads:read']],
     denormalizationContext:['groups' => ['ads:write']],
     operations: [
-        new Get(
-            security: "is_granted('ROLE_ADMIN')",
-            uriTemplate: '/api/ads/admin/detail/{id}',
-            name:"app_ads_admin_detail"
-        ), 
+        // new Get(
+        //     security: "is_granted('ROLE_ADMIN')",
+        //     uriTemplate: '/api/ads/admin/detail/{id}',
+        //     name:"app_ads_admin_detail"
+        // ), 
         new Get(
             security: "is_granted('ROLE_ADMIN')",
             description: "List all  ads.", 
@@ -38,6 +38,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             name:'app_ads_listing'
         ),
         new Get(
+            security: "is_granted('ROLE_ADMIN')",
             description: "List all  ads  with isvirefied is ok.", 
             uriTemplate: '/api/ads/admin/detail/{id}',
             name:'app_ads_admin_detail'
@@ -50,11 +51,13 @@ use Symfony\Component\Validator\Constraints as Assert;
         ), // conserver l'opération de mise à jour
         new delete(security: "is_granted('ROLE_ADMIN')"),
         new Delete( 
+            security: "is_granted('ROLE_USER')",
             description: "Delete an ads.", 
             uriTemplate: '/api/ads/delete/{adsId}/{userId}',
             name:'app_ads_delete',
         ), 
         new Post(   
+            security: "is_granted('ROLE_USER')",
             description: "Create an ads.", 
             uriTemplate: '/api/ads/create',
             name:'app_ads_create',

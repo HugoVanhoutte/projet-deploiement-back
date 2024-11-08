@@ -69,11 +69,11 @@ class AdsRepository extends ServiceEntityRepository
     a.length,
     a.height,
     a.isVerified,
-    u.userName,
-    i.filePath)')
+    u.userName
+    )')
     ->innerJoin("a.user","u")
-    ->innerJoin("MediaObject.ads", "i")
-
+    ->where("a.user = :user")
+    ->setParameter("user",$id)
     ->getQuery()
     ->getResult();
    }

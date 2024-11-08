@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Ads;
 use App\Entity\User;
 use App\Repository\AdsRepository;
+use App\Repository\MediaObjectRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -163,23 +164,15 @@ class AdsController extends AbstractController
 
 
     #[Route('/api/ads/admin/detail/{id}', name: 'app_ads_admin_detail', methods :["GET"])]
-    public function detailAdminAds(int $id, AdsRepository $adsRepository): Response
+    public function detailAdminAds(int $id, AdsRepository $adsRepository, MediaObjectRepository $media): Response
     {
         $result = $adsRepository->findAdsByIAdmin($id);
-
-        $adsData = array_map(function ($ad) {[
-            "id"=>$ad->getId(),
-            'title' => $ad->getTitle(),
-
-            "price"=> $ad->getPrice(),
-            "description"=>$ad->getDescription()
-            
-            ];
-        }, $result);
-            
+        for($i=0;$i<count($result);$i++){
+            $result[$i]->image = $media->findBy(array('ads'=>$result[$i]->id));
+        }      
         if($result){
             return new Response(
-                json_encode(["result" => $adsData]),
+                json_encode(["result" => $result]),
                 Response::HTTP_OK,
                 ['Content-Type' => 'application/json']
             );
