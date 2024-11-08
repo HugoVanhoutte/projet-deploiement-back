@@ -21,11 +21,10 @@ use Symfony\Component\Validator\Constraints as Assert;
     normalizationContext:['groups' => ['ads:read']],
     denormalizationContext:['groups' => ['ads:write']],
     operations: [
-        // new Get(
-        //     security: "is_granted('ROLE_ADMIN')",
-        //     uriTemplate: '/api/ads/admin/detail/{id}',
-        //     name:"app_ads_admin_detail"
-        // ), 
+         new Get(
+             uriTemplate: '/api/ads/detail/{id}',
+             name:"app_ads_detail"
+         ), 
         new Get(
             security: "is_granted('ROLE_ADMIN')",
             description: "List all  ads.", 
@@ -56,12 +55,12 @@ use Symfony\Component\Validator\Constraints as Assert;
             uriTemplate: '/api/ads/delete/{adsId}/{userId}',
             name:'app_ads_delete',
         ), 
-        new Post(   
-            security: "is_granted('ROLE_USER')",
-            description: "Create an ads.", 
-            uriTemplate: '/api/ads/create',
-            name:'app_ads_create',
-        )   
+        // new Post(   
+        //     security: "is_granted('ROLE_USER')",
+        //     description: "Create an ads.", 
+        //     uriTemplate: '/api/upload',
+        //     name:'app_update_image',
+        // )   
     ]
 )]
 class Ads
@@ -305,3 +304,67 @@ class Ads
         return $this;
     }
 }
+/*
+
+#[Route('/api/upload', name: 'app_update_image', methods: ['POST'])]
+    // #[IsGranted(new Expression('is_granted("ROLE_USER")'))]
+     public function index( 
+        EntityManagerInterface $entityManager, 
+        ValidatorInterface $validator, Request $request): Response
+     {
+ 
+     $data = $request->getContent();
+     // Traite les données (par exemple, décoder le JSON si nécessaire)
+     $jsonData = json_decode($data, true);
+     $ad = new Ads();
+     $ad->setTitle($jsonData['title']);
+     $ad->setDescription($jsonData['description']);
+     $ad->setPrice($jsonData['price']);
+     $ad->setZipCode($jsonData['zipCode']);
+     $ad->setWidth($jsonData['width']);
+     $ad->setLength($jsonData['length']);
+ 
+     $ad->setHeight($jsonData['height']);
+     $ad->setImages($jsonData['images']);
+     $mediaObject = new MediaObject();
+     $mediaObject->setAds($ad);
+     $user = $entityManager->getRepository(User::class)->find($jsonData['userId'] ?? null);
+     if (!$user) {
+         return new JsonResponse(
+             ['error' => 'User not found'],
+             Response::HTTP_BAD_REQUEST
+         );
+     }
+     $ad->setUser($user);
+     $ad->setVerified(0);
+     $errors = $validator->validate($ad);
+ 
+     if (count($errors) > 0) {
+         $errorMessages = [];
+         foreach ($errors as $error) {
+             $errorMessages[] = $error->getMessage();
+         }
+ 
+         return new JsonResponse(
+             ['errors' => $errorMessages],
+             Response::HTTP_BAD_REQUEST
+         );
+     }
+     $entityManager->persist($ad);
+     $entityManager->persist($mediaObject);
+     $entityManager->flush();
+     return new Response(
+         json_encode(["message" => "Ad created successfully"]),
+         Response::HTTP_CREATED,
+         ['Content-Type' => 'application/json']
+     );
+     }
+    
+
+        
+   
+
+*/
+       
+        
+ 

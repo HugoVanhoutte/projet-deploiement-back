@@ -4,11 +4,14 @@ namespace App\Controller;
 
 use App\Entity\User;
 use ApiPlatform\Metadata\Post;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\ExpressionLanguage\Expression;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -123,4 +126,25 @@ public function update(
         ['Content-Type' => 'application/json']
     );
 }
+    #[Route('/api/user/admin/delete/{id}', name: 'app_user_admin_delete', methods: ['PUT'])]
+    //#[IsGranted(new Expression('is_granted("ROLE_ADMIN")'))]
+    public function deleteByAdmin(int $id,
+    EntityManagerInterface $entityManager,
+    UserRepository $userRepository){
+        $result = $userRepository->find($id);
+        if($result){
+            $entityManager->remove($entityManager->getRepository(User::class)->find($id));
+            $entityManager->flush();
+            return new Response(
+                json_encode(["message" => "Ad deleted successfully"]),
+                Response::HTTP_CREATED,
+                ['Content-Type' => 'application/json']
+            );
+        }else{
+            return new JsonResponse(
+                ['errors' => "ads non connu"],
+                Response::HTTP_BAD_REQUEST
+            );
+        }    
+    }
 }

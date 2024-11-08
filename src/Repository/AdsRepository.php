@@ -57,7 +57,7 @@ class AdsRepository extends ServiceEntityRepository
         ->getQuery()
         ->getResult();
    }
-   public function findAdsByIAdmin($id):array{
+   public function findAdsByIAdmin(int $id):array{
     return $this->createQueryBuilder('a')
     ->select('NEW App\\DTO\\findAdsByIAdminDTO(
     a.id, 
@@ -72,11 +72,36 @@ class AdsRepository extends ServiceEntityRepository
     u.userName
     )')
     ->innerJoin("a.user","u")
-    ->where("a.user = :user")
-    ->setParameter("user",$id)
+    ->where("a.id = :id")
+    ->setParameter("id",$id)
     ->getQuery()
     ->getResult();
    }
+   public function findAdsById(int $id):array{
+    return $this->createQueryBuilder('a')
+    ->select('NEW App\\DTO\\findAdsByIAdminDTO(
+    a.id, 
+    a.title,
+    a.price,
+    a.description ,
+    a.zipCode,
+    a.width,
+    a.length,
+    a.height,
+    a.isVerified,
+    u.userName
+    )')
+    ->innerJoin("a.user","u")
+    ->where("a.id = :id")
+    ->andWhere('a.isVerified = 1')
+    ->setParameter("id",$id)
+    ->getQuery()
+    ->getResult();
+   }
+   
+    //    /**
+//     * @return Ads[] Returns an array of Ads objects
+//
     //    /**
 //     * @return Ads[] Returns an array of Ads objects
 //     */

@@ -49,10 +49,8 @@ class MediaObjectController extends  ApiTestCase
             //throw $this->createNotFoundException('Ads not found');
         }
        
-        // $mediaObject = new MediaObject();
-        // $mediaObject->setAds($ads);
- 
-
+        $mediaObject = new MediaObject();
+        $mediaObject->setAds($ads);
         // // Valider et enregistrer
         $errors = $validator->validate($mediaObject);
         if (count($errors) > 0) {
@@ -60,31 +58,10 @@ class MediaObjectController extends  ApiTestCase
             foreach ($errors as $error) {
                 $errorMessages[] = $error->getMessage();
             }
-
             return new JsonResponse(['errors' => $errorMessages], Response::HTTP_BAD_REQUEST);
         }
-
-        // $entityManager->persist($mediaObject);
-        // $entityManager->flush();
-        $client = self::createClient();
-
-        $client->request('POST', 'http://localhost:8888/api/upload', [
-          'headers' => ['Content-Type' => 'multipart/form-data'],
-          'extra' => [
-            // If you have additional fields in your MediaObject entity, use the parameters.
-            'parameters' => [
-                'ads' => $ads
-            ],
-            // 'files' => [
-            //   'file' => $file,
-            // ],
-           ]
-        ]);
-        $this->assertResponseIsSuccessful();
-        $this->assertMatchesResourceItemJsonSchema(MediaObject::class);
-        $this->assertJsonContains([
-            // 'title' => 'My file uploaded',
-        ]);
+        $entityManager->persist($mediaObject);
+        $entityManager->flush();
         return new JsonResponse(
             ["message" => "Image associée avec succès à l'annonce."],
             Response::HTTP_CREATED,

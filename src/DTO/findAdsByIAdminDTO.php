@@ -26,8 +26,7 @@ class findAdsByIAdminDTO
     int $length,
     int $height,
     bool $isVerified,
-        string $userName,
-        )
+        string $userName)
     {
      $this->id =  $id;
      $this->title = $title;
@@ -39,7 +38,7 @@ class findAdsByIAdminDTO
      $this->height =$height;
      $this->isVerified =$isVerified;
      $this->userName =$userName;
-     
+
     }
     public function getId(){ return $this->id;}
     public function getTitle(){ return $this->title;}

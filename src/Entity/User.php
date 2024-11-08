@@ -25,8 +25,8 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
     normalizationContext:['groups' => ['user:read']],
     denormalizationContext:['groups' => ['user:write']],
     operations: [
-        new Get(), 
-        new Post(), 
+        // new Get(), 
+        // new Post(), 
         new Put(
             security: "is_granted('ROLE_USER')",
             description: "Updete his account", 
@@ -39,7 +39,12 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
             uriTemplate: '/api/user/delete/{id}',
             name:'app_user_delete'
         ),
-        new Delete(security: "is_granted('ROLE_ADMIN')"), // conserver l'opération de suppression
+         new Delete(
+             security: "is_granted('ROLE_ADMIN')",
+            description: "Delete an account", 
+            uriTemplate: '/api/user/admin/delete/{id}',
+            name:'app_user_admin_delete'
+         ), 
         new Post(   
             description: "Enregistre un nouveau client.", 
             uriTemplate: '/api/user/register',
