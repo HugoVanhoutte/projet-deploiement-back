@@ -75,29 +75,43 @@ class Ads
 
     #[ORM\Column(length: 50)]
     #[Groups(['ads:read','ads:write'])]
+    #[Assert\Regex('/^(?!.*([a-z0-9 \-\.\'])\1{10,50}).*$/', message: "title")] 
+    
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT)]
     #[Groups(['ads:read','ads:write'])]
+    #[Assert\Regex('/^[a-zA-Z0-9àâäéèêëîïôöùûüÿçÀÂÄÉÈÊËÎÏÔÖÙÛÜŸÇ!?;\-,\n ]{50,}$/', message: "description")] 
+    
     private ?string $description = null;
 
     #[ORM\Column]
+    #[Assert\Regex('/^[0,9]{1,6}$/', message: "price")]  
     private ?int $price = null;
 
     #[ORM\Column(length: 5)]
     #[Groups(['ads:read','ads:write'])]
+    #[Assert\Regex('/^[0,9]{5}$/', message: "zipCode")]
     private ?string $zipCode = null;
 
     #[ORM\Column]
     #[Groups(['ads:read','ads:write'])]
+    #[Assert\Type(
+        type: 'integer',
+        message: 'La largeur (width) doit être un entier.'
+    )]
     private ?int $width = null;
 
     #[ORM\Column]
     #[Groups(['ads:read','ads:write'])]
+    #[Assert\Regex('/^\d+$/', message: "length")]
+    #[Assert\Type(type: 'integer', message: "length")]
     private ?int $length = null;
 
     #[ORM\Column]
     #[Groups(['ads:read','ads:write'])]
+    #[Assert\Regex('/^\d+$/', message: "height")]
+    #[Assert\Type(type: 'integer', message: "height")]
     private ?int $height = null;
 
     #[ORM\Column(nullable: true)]
@@ -106,6 +120,7 @@ class Ads
 
     #[ORM\Column]
     #[Groups(['ads:read','ads:write'])]
+    #[Assert\Type(type: ['boolean', ],message:"isVerified")]
     private ?bool $isVerified = null;
 
     #[ORM\ManyToOne()]
@@ -306,67 +321,3 @@ class Ads
         return $this;
     }
 }
-/*
-
-#[Route('/api/upload', name: 'app_update_image', methods: ['POST'])]
-    // #[IsGranted(new Expression('is_granted("ROLE_USER")'))]
-     public function index( 
-        EntityManagerInterface $entityManager, 
-        ValidatorInterface $validator, Request $request): Response
-     {
- 
-     $data = $request->getContent();
-     // Traite les données (par exemple, décoder le JSON si nécessaire)
-     $jsonData = json_decode($data, true);
-     $ad = new Ads();
-     $ad->setTitle($jsonData['title']);
-     $ad->setDescription($jsonData['description']);
-     $ad->setPrice($jsonData['price']);
-     $ad->setZipCode($jsonData['zipCode']);
-     $ad->setWidth($jsonData['width']);
-     $ad->setLength($jsonData['length']);
- 
-     $ad->setHeight($jsonData['height']);
-     $ad->setImages($jsonData['images']);
-     $mediaObject = new MediaObject();
-     $mediaObject->setAds($ad);
-     $user = $entityManager->getRepository(User::class)->find($jsonData['userId'] ?? null);
-     if (!$user) {
-         return new JsonResponse(
-             ['error' => 'User not found'],
-             Response::HTTP_BAD_REQUEST
-         );
-     }
-     $ad->setUser($user);
-     $ad->setVerified(0);
-     $errors = $validator->validate($ad);
- 
-     if (count($errors) > 0) {
-         $errorMessages = [];
-         foreach ($errors as $error) {
-             $errorMessages[] = $error->getMessage();
-         }
- 
-         return new JsonResponse(
-             ['errors' => $errorMessages],
-             Response::HTTP_BAD_REQUEST
-         );
-     }
-     $entityManager->persist($ad);
-     $entityManager->persist($mediaObject);
-     $entityManager->flush();
-     return new Response(
-         json_encode(["message" => "Ad created successfully"]),
-         Response::HTTP_CREATED,
-         ['Content-Type' => 'application/json']
-     );
-     }
-    
-
-        
-   
-
-*/
-       
-        
- 

@@ -95,4 +95,43 @@ public function deleteByAdmin(
         );
     }
 }
+
+
+
+#[Route('/api/user/check-email/{email}', name: 'app_user_check_email', methods: ['GET'])]
+public function checkEmail(
+    string $email,
+    UserRepository $userRepository) {
+    $user = $userRepository->findBy(array("email"=>$email));
+
+    if ($user) {
+        return new JsonResponse(
+            ["message" => "Email  find"],
+            Response::HTTP_FOUND
+        );
+    } else {
+        return new JsonResponse(
+            ['message' => "User not found"],
+            Response::HTTP_OK
+        );
+    }
+}
+#[Route('/api/user/check-username/{username}', name: 'app_user_check_username', methods: ['GET'])]
+public function checkUserName(
+    string $username,
+    UserRepository $userRepository) {
+    $user = $userRepository->findBy(array("userName"=>$username));
+
+    if ($user) {
+        return new JsonResponse(
+            ["message" => "User  find"],
+            Response::HTTP_FOUND
+        );
+    } else {
+        return new JsonResponse(
+            ['message' => "User not found"],
+            Response::HTTP_OK
+        );
+    }
+}
 }

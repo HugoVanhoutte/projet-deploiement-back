@@ -30,7 +30,10 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
         uriTemplate: '/api/user/check-email/{email}',
         name:'app_user_check_email'
         ), 
-        // new Post(), 
+        new Get(
+            uriTemplate: '/api/user/check-username/{username}',
+            name:'app_user_check_username'
+        ), 
         new Put(
             security: "is_granted('ROLE_USER')",
             description: "Updete his account", 
@@ -57,8 +60,9 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
     ]
 )]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
-#[UniqueEntity(fields: ["email"], message: "Cet email est déjà utilisé.")]
-#[UniqueEntity(fields: ["userName"], message:"le nom d'utilisateur est déjà pris.")]
+#[UniqueEntity(fields: ["email"], message: "email")]
+#[UniqueEntity(fields: ["userName"], message:"username")]
+#[UniqueEntity(fields: ["phone"], message:"phone")]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -89,18 +93,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 25)]
     #[Groups(['user:read','user:write'])]
+    #[Assert\Regex('/^[a-z]{3,15}$/', message: "username.regex")]
+    #[Assert\Regex('/^(?!.*([a-zA-Z])\1{2}).*$/', message: "username.letters")]
     private ?string $userName = null;
 
     #[ORM\Column(length: 10)]
     #[Groups(['user:read','user:write'])]
+    #[Assert\Regex('/^[0-9]{10}$/', message: "regex")]
     private ?string $phone = null;
 
     #[ORM\Column(length: 100)]
     #[Groups(['user:read','user:write'])]
+    #[Assert\Regex('/^[a-z\-]{2,50}$/', message: "fristName.regex")]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 100)]
     #[Groups(['user:read','user:write'])]
+    #[Assert\Regex('/^[a-z\-]{2,50}$/', message: "lastName.regex")]
     private ?string $lastName = null;
 
 
