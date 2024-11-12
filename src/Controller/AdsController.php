@@ -16,6 +16,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+
 class AdsController extends AbstractController
 {
     #[Route('/api/ads/create', name: 'app_ads_create')]
@@ -70,12 +71,26 @@ class AdsController extends AbstractController
     }
     #[Route('/api/ads/delete/{adsId}/{userId}', name: 'app_ads_delete')]
     #[IsGranted(new Expression('is_granted("ROLE_USER")'))]
-    public function delete(int $adsId, int $userId, AdsRepository $adsRepository, EntityManagerInterface $entityManager): Response
+    public function delete(int $adsId,
+    MediaObject $mediaObject, 
+    int $userId, 
+    AdsRepository $adsRepository, 
+    EntityManagerInterface $entityManager,
+    MediaObjectRepository $mediaObjectRepository,): Response
     {
         $result = $adsRepository->deleteByIdUser($adsId, $userId);
         if($result){
 
+            // Récupérer le MediaObject associé à cette annonce
+            $mediaObject = $mediaObjectRepository->findOneBy(['ads' => $adsId]);
+
+            if ($mediaObject) {
+                // Supprimer le fichier associé
+                $entityManager->remove($mediaObject);
+            }
+
             $entityManager->remove($entityManager->getRepository(Ads::class)->find($adsId));
+            
             $entityManager->flush();
             //sppression des images
 
@@ -110,7 +125,38 @@ class AdsController extends AbstractController
             );
         }     
     }
+    #[Route('/api/ads/{adsId}', name: 'app_ads_admin_delete')]
+    #[IsGranted(new Expression('is_granted("ROLE_ADMIN")'))]
+    public function deleteByAdmin(int $adsId,
+    AdsRepository $adsRepository, 
+    EntityManagerInterface $entityManager,
+    MediaObjectRepository $mediaObjectRepository): Response
+    {
+        $result = $adsRepository->find($adsId);
+        if($result){
 
+            // Récupérer le MediaObject associé à cette annonce
+            $mediaObject = $mediaObjectRepository->findBy(['ads' => $adsId]);
+            for($i=0;$i<count($mediaObject);$i++){
+                if ($mediaObject[$i]) {
+                    // Supprimer le fichier associé
+                    $entityManager->remove($mediaObject[$i]);
+                }
+            }
+            $entityManager->remove($entityManager->getRepository(Ads::class)->find($adsId));     
+            $entityManager->flush();
+            return new Response(
+                json_encode(["message" => "Ad deleted successfully"]),
+                Response::HTTP_OK,
+                ['Content-Type' => 'application/json']
+            );
+        }else{
+            return new JsonResponse(
+                ['errors' => "ads non connu"],
+                Response::HTTP_BAD_REQUEST
+            );
+        }     
+    }
 
     #[Route('/api/ads/admin/listing', name: 'app_ads_admin_listing')]
     #[IsGranted(new Expression('is_granted("ROLE_ADMIN")'))]

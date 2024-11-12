@@ -4,8 +4,10 @@ namespace App\Controller;
 
 use App\Entity\User;
 use ApiPlatform\Metadata\Post;
+use App\Repository\AdsRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Repository\MediaObjectRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -57,94 +59,40 @@ public function index( EntityManagerInterface $entityManager, ValidatorInterface
     );
 }
 
-#[Route('/api/user/update/{id}', name: 'app_user_update', methods: ['PUT'])]
-public function update(
+#[Route('/api/user/admin/delete/{id}', name: 'app_user_admin_delete', methods: ['DELETE'])]
+#[IsGranted(new Expression('is_granted("ROLE_ADMIN")'))]
+public function deleteByAdmin(
     int $id,
     EntityManagerInterface $entityManager,
-    ValidatorInterface $validator,
-    Request $request,
-    UserPasswordHasherInterface $passwordHasher
-): Response {
-    // Rechercher l'utilisateur par son ID
-    $client = $entityManager->getRepository(User::class)->find($id);
+    UserRepository $userRepository,
+    MediaObjectRepository $mediaObjectRepository,
+    AdsRepository $adsRepository
+) {
+    $user = $userRepository->find($id);
 
-    // Vérifier si l'utilisateur existe
-    if (!$client) {
-        return new JsonResponse(
-            ["message" => "User not found"],
-            Response::HTTP_NOT_FOUND
-        );
-    }
-
-    // Décoder les données JSON envoyées dans la requête
-    $data = json_decode($request->getContent(), true);
-
-    // Vérifier la présence des clés nécessaires dans les données JSON
-    if (!$data || !isset($data['email'], 
-    $data['password'], 
-    $data['username'], 
-    $data['phone'], 
-    $data['firstName'], 
-    $data['lastName'])) {
-        return new JsonResponse(
-            ["message" => "Invalid data provided"],
-            Response::HTTP_BAD_REQUEST
-        );
-    }
-
-    // Mettre à jour les données de l'utilisateur
-    $client->setEmail($data['email']);
-    $client->setRoles($data['roles'] ?? $client->getRoles()); // Garde les rôles existants s'ils ne sont pas fournis
-    $client->setUserName($data['username']);
-    $client->setPhone($data['phone']);
-    $client->setFirstName($data['firstName']);
-    $client->setLastName($data['lastName']);
-
-    // Hashage du mot de passe
-    $hashedPassword = $passwordHasher->hashPassword($client, $data['password']);
-    $client->setPassword($hashedPassword);
-
-    // Validation des données mises à jour
-    $errors = $validator->validate($client);
-    if (count($errors) > 0) {
-        $errorMessages = [];
-        foreach ($errors as $error) {
-            $errorMessages[] = $error->getMessage();
+    if ($user) {
+        // Récupérer toutes les annonces de l'utilisateur
+        $ads = $adsRepository->findBy(['user' => $id]);
+        foreach ($ads as $ad) {
+            $mediaObjects = $mediaObjectRepository->findBy(['ads' => $ad->getId()]);
+            foreach ($mediaObjects as $mediaObject) {
+                $entityManager->remove($mediaObject);
+            }
+            $entityManager->remove($ad);
         }
+        // Supprimer l'utilisateur
+        $entityManager->remove($user);
+        $entityManager->flush();
+
         return new JsonResponse(
-            ['errors' => $errorMessages],
+            ["message" => "User and related ads deleted successfully"],
+            Response::HTTP_OK
+        );
+    } else {
+        return new JsonResponse(
+            ['errors' => "User not found"],
             Response::HTTP_BAD_REQUEST
         );
     }
-
-    // Persister et sauvegarder les changements
-    $entityManager->flush();
-
-    return new JsonResponse(
-        ["message" => "User updated successfully"],
-        Response::HTTP_OK,
-        ['Content-Type' => 'application/json']
-    );
 }
-    #[Route('/api/user/admin/delete/{id}', name: 'app_user_admin_delete', methods: ['DELETE'])]
-    #[IsGranted(new Expression('is_granted("ROLE_ADMIN")'))]
-    public function deleteByAdmin(int $id,
-    EntityManagerInterface $entityManager,
-    UserRepository $userRepository){
-        $result = $userRepository->find($id);
-        if($result){
-            $entityManager->remove($entityManager->getRepository(User::class)->find($id));
-            $entityManager->flush();
-            return new Response(
-                json_encode(["message" => "Ad deleted successfully"]),
-                Response::HTTP_CREATED,
-                ['Content-Type' => 'application/json']
-            );
-        }else{
-            return new JsonResponse(
-                ['errors' => "ads non connu"],
-                Response::HTTP_BAD_REQUEST
-            );
-        }    
-    }
 }

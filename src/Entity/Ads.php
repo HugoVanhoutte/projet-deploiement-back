@@ -48,7 +48,9 @@ use Symfony\Component\Validator\Constraints as Assert;
             uriTemplate: '/api/ads/verified/{adsId}',
             name:'app_ads_admin_changeVerfied',
         ), // conserver l'opération de mise à jour
-        new delete(security: "is_granted('ROLE_ADMIN')"),
+        new delete(security: "is_granted('ROLE_ADMIN')",
+            uriTemplate: '/api/ads/adsId}',
+            name:'app_ads_admin_delete',),
         new Delete( 
             security: "is_granted('ROLE_USER')",
             description: "Delete an ads.", 

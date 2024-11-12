@@ -13,10 +13,11 @@ use ApiPlatform\Metadata\ApiResource;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\ExpressionLanguage\Expression;
+
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
-use ApiPlatform\Symfony\Bundle\SwaggerUi\SwaggerUiContext;
+
+use Symfony\Component\Validator\Constraints\PasswordStrength;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -25,7 +26,10 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
     normalizationContext:['groups' => ['user:read']],
     denormalizationContext:['groups' => ['user:write']],
     operations: [
-        // new Get(), 
+        new Get(description: "check email is available", 
+        uriTemplate: '/api/user/check-email/{email}',
+        name:'app_user_check_email'
+        ), 
         // new Post(), 
         new Put(
             security: "is_granted('ROLE_USER')",
@@ -54,6 +58,7 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 )]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[UniqueEntity(fields: ["email"], message: "Cet email est déjà utilisé.")]
+#[UniqueEntity(fields: ["userName"], message:"le nom d'utilisateur est déjà pris.")]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -77,6 +82,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var string The hashed password
      */
     #[ORM\Column]
+    #[Assert\PasswordStrength([
+        'minScore' => PasswordStrength::STRENGTH_VERY_STRONG, // Very strong password required
+    ])]
     private ?string $password = null;
 
     #[ORM\Column(length: 25)]
