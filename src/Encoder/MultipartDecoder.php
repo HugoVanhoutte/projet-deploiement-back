@@ -1,5 +1,4 @@
 <?php
-// api/src/Encoder/MultipartDecoder.php
 
 namespace App\Encoder;
 
@@ -14,6 +13,11 @@ final class MultipartDecoder implements DecoderInterface
     {
     }
 
+    /**
+     * @param array<string, mixed> $context
+     *
+     * @return array<string, mixed>
+     */
     public function decode(string $data, string $format, array $context = []): ?array
     {
         $request = $this->requestStack->getCurrentRequest();
@@ -23,7 +27,6 @@ final class MultipartDecoder implements DecoderInterface
         }
 
         return array_map(static function (string $element) {
-            // Multipart form values will be encoded in JSON.
             $decoded = json_decode($element, true);
 
             return \is_array($decoded) ? $decoded : $element;

@@ -55,12 +55,12 @@ use Symfony\Component\Validator\Constraints as Assert;
             uriTemplate: '/api/ads/delete/{adsId}/{userId}',
             name:'app_ads_delete',
         ), 
-        // new Post(   
-        //     security: "is_granted('ROLE_USER')",
-        //     description: "Create an ads.", 
-        //     uriTemplate: '/api/upload',
-        //     name:'app_update_image',
-        // )   
+        new Post(   
+             security: "is_granted('ROLE_USER')",
+             description: "Create an ads.", 
+             uriTemplate: '/api/ads/create',
+             name:'app_ads_create',
+        )   
     ]
 )]
 class Ads
@@ -106,7 +106,7 @@ class Ads
     #[Groups(['ads:read','ads:write'])]
     private ?bool $isVerified = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'ads', fetch: 'EXTRA_LAZY', cascade: ['persist'])]
+    #[ORM\ManyToOne()]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['ads:read', 'ads:write'])]
     private ?User $user = null;

@@ -126,8 +126,8 @@ public function update(
         ['Content-Type' => 'application/json']
     );
 }
-    #[Route('/api/user/admin/delete/{id}', name: 'app_user_admin_delete', methods: ['PUT'])]
-    //#[IsGranted(new Expression('is_granted("ROLE_ADMIN")'))]
+    #[Route('/api/user/admin/delete/{id}', name: 'app_user_admin_delete', methods: ['DELETE'])]
+    #[IsGranted(new Expression('is_granted("ROLE_ADMIN")'))]
     public function deleteByAdmin(int $id,
     EntityManagerInterface $entityManager,
     UserRepository $userRepository){

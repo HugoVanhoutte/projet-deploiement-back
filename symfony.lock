@@ -335,6 +335,9 @@
             "config/routes/web_profiler.yaml"
         ]
     },
+    "symfonycasts/micro-mapper": {
+        "version": "v0.2.0"
+    },
     "twig/extra-bundle": {
         "version": "v3.13.0"
     },

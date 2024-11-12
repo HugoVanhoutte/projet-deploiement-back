@@ -2,21 +2,8 @@
 
 namespace App\Controller;
 
-
-
-
-
-use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
-
-use Hautelook\AliceBundle\PhpUnit\RefreshDatabaseTrait;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-
-
-
-
 use App\Entity\Ads;
 use App\Entity\MediaObject;
-use App\Repository\AdsRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,33 +12,41 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Doctrine\Persistence\ManagerRegistry;
-class MediaObjectController extends  ApiTestCase
+use Vich\UploaderBundle\Handler\UploadHandler;
+
+class MediaObjectController extends AbstractController
 {
-    #[Route('/api/upload', name: 'app_update_image', methods: ['POST'])]
-    public function index(EntityManagerInterface $entityManager, 
-    AdsRepository $adsRepository,
-    ValidatorInterface $validator, Request $request,
-    ManagerRegistry $doctrine): Response
-    {
-        // Récupérer l'ID de l'annonce depuis les données du formulaire
+    #[Route('/api/upload', name: 'app_upload_image', methods: ['POST'])]
+    public function upload(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        ValidatorInterface $validator,
+        ManagerRegistry $doctrine,
+        UploadHandler $uploadHandler
+    ): Response {
+        // Récupérer l'ID de l'annonce depuis le formulaire
         $adsId = $request->request->get('ads');
-        return new JsonResponse($adsId);
-        
         if (!$adsId) {
             return new JsonResponse(['error' => 'L\'ID de l\'annonce est requis.'], Response::HTTP_BAD_REQUEST);
         }
 
-        // Récupérer l'entité Ads depuis la base de données
-        $repository = $doctrine()->getRepository(Ads::class);
-        $ads = $repository->findOneBy(['id' => $adsId]);
-     //   $ads = $adsRepository->findOneBy(array("id"=>$adsId))->getResult();;
+        // Récupérer l'entité Ads correspondante
+        $ads = $doctrine->getRepository(Ads::class)->find($adsId);
         if (!$ads) {
-            //throw $this->createNotFoundException('Ads not found');
+            return new JsonResponse(['error' => 'Annonce non trouvée'], Response::HTTP_NOT_FOUND);
         }
-       
+
+        // Récupérer le fichier téléchargé
+        $file = $request->files->get('file');
+        if (!$file) {
+            return new JsonResponse(['error' => 'Fichier non fourni'], Response::HTTP_BAD_REQUEST);
+        }
+
         $mediaObject = new MediaObject();
+        $mediaObject->setFile($file);
         $mediaObject->setAds($ads);
-        // // Valider et enregistrer
+
+        // Valider l'objet
         $errors = $validator->validate($mediaObject);
         if (count($errors) > 0) {
             $errorMessages = [];
@@ -60,12 +55,15 @@ class MediaObjectController extends  ApiTestCase
             }
             return new JsonResponse(['errors' => $errorMessages], Response::HTTP_BAD_REQUEST);
         }
+
+        // Enregistrer l'objet MediaObject
+        $uploadHandler->upload($mediaObject, 'file');
         $entityManager->persist($mediaObject);
         $entityManager->flush();
+
         return new JsonResponse(
-            ["message" => "Image associée avec succès à l'annonce."],
-            Response::HTTP_CREATED,
-            ['Content-Type' => 'application/json']
+            ['message' => 'Image associée avec succès à l\'annonce.'],
+            Response::HTTP_CREATED
         );
     }
 }

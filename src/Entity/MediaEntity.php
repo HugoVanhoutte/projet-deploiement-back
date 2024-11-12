@@ -1,25 +1,27 @@
-<?php  
+<?php
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiProperty;
-use ApiPlatform\Metadata\ApiResource;
+use App\Entity\AdEntity;
 use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
 use App\State\SaveMediaObject;
+use Doctrine\DBAL\Types\Types;
+use Symfony\Component\Uid\Uuid;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\MediaRepository;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\GetCollection;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
-
+use Symfony\Component\Validator\Constraints as Assert;
+#[ORM\Entity(repositoryClass: MediaRepository::class)]
 #[Vich\Uploadable]
-#[ORM\Entity]
 #[ApiResource(
     normalizationContext: ['groups' => ['media_object:read']],
-    denormalizationContext:['groups' => ['media_object:write']],
     types: ['https://schema.org/MediaObject'],
     outputFormats: ['jsonld' => ['application/ld+json']],
     operations: [
@@ -49,75 +51,53 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
         )
     ]
 )]
-
-class MediaObject
+class MediaEntity
 {
     #[ORM\Id, ORM\Column, ORM\GeneratedValue]
-    #[Groups(['media_object:read', 'media_object:write'])]
     private ?int $id = null;
 
+    #[ORM\Column(type: Types::STRING)]
     #[Vich\UploadableField(mapping: 'media_object', fileNameProperty: 'filePath')]
-    #[Assert\NotNull]
-    #[Groups(['media_object:write'])]
-    private ?File $file = null;
+    private string $path;
 
-    #[ORM\Column(nullable: true)]
-    #[Groups(['media_object:read'])]
-    private ?string $filePath = null;
-
-    #[ORM\ManyToOne(targetEntity: Ads::class, inversedBy: 'mediaObject')]
-    #[ORM\JoinColumn(onDelete: "CASCADE", nullable: true)]
-    private ?Ads $ads = null;
-
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $updatedAt = null;
+    #[ORM\ManyToOne(targetEntity: AdEntity::class, inversedBy: 'medias')]
+#[ORM\JoinColumn(nullable: false, referencedColumnName: 'id')]
+private ?AdEntity $ad = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getFile(): ?File
+    public function setId(int $id): self
     {
-        return $this->file;
+        $this->id = $id;
+
+        return $this;
     }
 
-    public function setFile(?File $file): void
+    public function getPath(): string
     {
-        $this->file = $file;
-        if ($file) {
-            // Mettre à jour la date de mise à jour lorsque le fichier est modifié
-            $this->updatedAt = new \DateTimeImmutable();
-        }
+        return $this->path;
     }
 
-    public function getFilePath(): ?string
+    public function setPath(string $path): self
     {
-        return $this->filePath;
+        $this->path = $path;
+
+        return $this;
     }
 
-    public function setFilePath(?string $filePath): void
-    {
-        $this->filePath = $filePath;
-    }
+ 
 
-    public function getAds(): ?Ads
-    {
-        return $this->ads;
-    }
+    public function getAd(): ?AdEntity
+{
+    return $this->ad;
+}
 
-    public function setAds(?Ads $ads): void
-    {
-        $this->ads = $ads;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(?\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
-    }
+public function setAd(?AdEntity $ad): self
+{
+    $this->ad = $ad;
+    return $this;
+}
 }
