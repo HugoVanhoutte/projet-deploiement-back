@@ -51,7 +51,7 @@ class AdsController extends AbstractController
     $user = $entityManager->getRepository(User::class)->find($jsonData['userId'] ?? null);
     if (!$user) {
         return new JsonResponse(
-            ['error' => 'User not found'],
+            ['result' => 'User not found'],
             Response::HTTP_BAD_REQUEST
         );
     }
@@ -66,14 +66,14 @@ class AdsController extends AbstractController
         }
 
         return new JsonResponse(
-            ['errors' => $errorMessages],
+            ['result' => $errorMessages],
             Response::HTTP_BAD_REQUEST
         );
     }
     $entityManager->persist($ad);
     $entityManager->flush();
     return new Response(
-        json_encode(["message" => "Ad created successfully"]),
+        json_encode(["result" => "Ad created successfully"]),
         Response::HTTP_CREATED,
         ['Content-Type' => 'application/json']
     );
@@ -107,13 +107,13 @@ class AdsController extends AbstractController
             //sppression des images
 
             return new Response(
-                json_encode(["message" => "Ad deleted successfully"]),
+                json_encode(["result" => "Ad deleted successfully"]),
                 Response::HTTP_CREATED,
                 ['Content-Type' => 'application/json']
             );
         }else{
             return new JsonResponse(
-                ['errors' => "ads non connu"],
+                ['result' => "ads non connu"],
                 Response::HTTP_BAD_REQUEST
             );
         }     
@@ -126,13 +126,13 @@ class AdsController extends AbstractController
         $result = $adsRepository->isVerified($adsId);
         if($result>0){
             return new Response(
-                json_encode(["message" => "Ad  state changed successfully"]),
+                json_encode(["result" => "Ad  state changed successfully"]),
                 Response::HTTP_CREATED,
                 ['Content-Type' => 'application/json']
             );
         }else{
             return new JsonResponse(
-                ['errors' => "ads non connu"],
+                ['result' => "ads non connu"],
                 Response::HTTP_BAD_REQUEST
             );
         }     
@@ -165,13 +165,13 @@ class AdsController extends AbstractController
             $entityManager->remove($entityManager->getRepository(Ads::class)->find($adsId));     
             $entityManager->flush();
             return new Response(
-                json_encode(["message" => "Ad deleted successfully"]),
+                json_encode(["result" => "Ad deleted successfully"]),
                 Response::HTTP_OK,
                 ['Content-Type' => 'application/json']
             );
         }else{
             return new JsonResponse(
-                ['errors' => "ads non connu"],
+                ['eresult' => "ads non connu"],
                 Response::HTTP_BAD_REQUEST
             );
         }     
@@ -199,7 +199,7 @@ class AdsController extends AbstractController
             );
         }else{
             return new JsonResponse(
-                ['errors' => "ads non connu"],
+                ['result' => "ads non connu"],
                 Response::HTTP_BAD_REQUEST
             );
         }     
@@ -228,7 +228,7 @@ class AdsController extends AbstractController
             );
         }else{
             return new JsonResponse(
-                ['errors' => "ads non connu"],
+                ['result' => "ads non connu"],
                 Response::HTTP_BAD_REQUEST
             );
         }     
@@ -288,11 +288,11 @@ class AdsController extends AbstractController
     ): JsonResponse {
         $user = $userRepository->find($userId);
         if (!$user) {
-            return new JsonResponse(['message' => "User not found"], Response::HTTP_NOT_FOUND);
+            return new JsonResponse(['result' => "User not found"], Response::HTTP_NOT_FOUND);
         }
         $ads = $adsRepository->find($adsId);
         if (!$ads) {
-            return new JsonResponse(['message' => "Ad not found"], Response::HTTP_NOT_FOUND);
+            return new JsonResponse(['result' => "Ad not found"], Response::HTTP_NOT_FOUND);
         }
         if (!$ads->getReporting()->contains($user)) {
             $ads->addReporting($user);
@@ -302,6 +302,13 @@ class AdsController extends AbstractController
         $entityManager->persist($user);
         $entityManager->flush();
 
-        return new JsonResponse(['message' => $message], Response::HTTP_OK);
+        return new JsonResponse(['result' => $message], Response::HTTP_OK);
+    }
+
+    #[Route('/api/ads/search/{search}', name: 'app_ads_search', methods: ["GET"])]
+    public function search(string $search, AdsRepository $adsRepository): JsonResponse
+    {
+        $ads = $adsRepository->searchAds($search);
+        return new JsonResponse(['result' => $ads], Response::HTTP_OK);
     }
 }

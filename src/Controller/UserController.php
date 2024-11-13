@@ -46,14 +46,14 @@ public function index( EntityManagerInterface $entityManager, ValidatorInterface
         }
 
         return new JsonResponse(
-            ['errors' => $errorMessages],
+            ['result' => $errorMessages],
             Response::HTTP_BAD_REQUEST
         );
     }
     $entityManager->persist($client);
     $entityManager->flush();
     return new Response(
-        json_encode(["message" => "User registered successfully"]),
+        json_encode(["result" => "User registered successfully"]),
         Response::HTTP_CREATED,
         ['Content-Type' => 'application/json']
     );
@@ -92,12 +92,12 @@ public function delete(
         $entityManager->flush();
 
         return new JsonResponse(
-            ["message" => "User and related ads deleted successfully"],
+            ["result" => "User and related ads deleted successfully"],
             Response::HTTP_OK
         );
     } else {
         return new JsonResponse(
-            ['errors' => "User not found"],
+            ['result' => "User not found"],
             Response::HTTP_BAD_REQUEST
         );
     }
@@ -132,12 +132,12 @@ public function deleteByAdmin(
         $entityManager->flush();
 
         return new JsonResponse(
-            ["message" => "User and related ads deleted successfully"],
+            ["result" => "User and related ads deleted successfully"],
             Response::HTTP_OK
         );
     } else {
         return new JsonResponse(
-            ['errors' => "User not found"],
+            ['result' => "User not found"],
             Response::HTTP_BAD_REQUEST
         );
     }
@@ -153,12 +153,12 @@ public function checkEmail(
 
     if ($user) {
         return new JsonResponse(
-            ["message" => "Email  find"],
+            ["result" => "Email  find"],
             Response::HTTP_FOUND
         );
     } else {
         return new JsonResponse(
-            ['message' => "User not found"],
+            ['result' => "User not found"],
             Response::HTTP_OK
         );
     }
@@ -171,12 +171,12 @@ public function checkUserName(
 
     if ($user) {
         return new JsonResponse(
-            ["message" => "User  find"],
+            ["result" => "User  find"],
             Response::HTTP_FOUND
         );
     } else {
         return new JsonResponse(
-            ['message' => "User not found"],
+            ['result' => "User not found"],
             Response::HTTP_OK
         );
     }
@@ -228,7 +228,7 @@ public function update(
     // Vérifier si l'utilisateur existe
     if (!$client) {
         return new JsonResponse(
-            ["message" => "User not found"],
+            ["result" => "User not found"],
             Response::HTTP_NOT_FOUND
         );
     }
@@ -244,7 +244,7 @@ public function update(
     $data['firstName'], 
     $data['lastName'])) {
         return new JsonResponse(
-            ["message" => "Invalid data provided"],
+            ["result" => "Invalid data provided"],
             Response::HTTP_BAD_REQUEST
         );
     }
@@ -269,7 +269,7 @@ public function update(
             $errorMessages[] = $error->getMessage();
         }
         return new JsonResponse(
-            ['errors' => $errorMessages],
+            ['result' => $errorMessages],
             Response::HTTP_BAD_REQUEST
         );
     }
@@ -278,7 +278,7 @@ public function update(
     $entityManager->flush();
 
     return new JsonResponse(
-        ["message" => "User updated successfully"],
+        ["result" => "User updated successfully"],
         Response::HTTP_OK,
         ['Content-Type' => 'application/json']
     );

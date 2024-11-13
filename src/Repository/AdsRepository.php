@@ -101,7 +101,18 @@ class AdsRepository extends ServiceEntityRepository
     ->getQuery()
     ->getResult();
    }
-   
+   public function searchAds(string $keyword): array
+   {
+    return $this->entityManager->createQueryBuilder()
+        ->select('a')
+        ->from(Ads::class, 'a')
+        ->where('a.title LIKE :keyword')
+        ->orWhere('a.description LIKE :keyword')
+        ->orWhere('a.zipcode LIKE :keyword')
+        ->setParameter('keyword', '%' . $keyword . '%')
+        ->getQuery()
+        ->getResult();
+}
     //    /**
 //     * @return Ads[] Returns an array of Ads objects
 //

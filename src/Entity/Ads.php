@@ -68,6 +68,11 @@ use Symfony\Component\Validator\Constraints as Assert;
             description: "say reporting on ads.", 
             uriTemplate: '/api/ads/reporting/{adsId}/{userId}',
             name:'app_ads_reporting',
+        ) ,
+        new Get(
+            description: "search some ads by title, description, zipcode", 
+            uriTemplate: '/api/ads/search/{search}',
+            name:'app_ads_search',
         )  
     ]
 )]
