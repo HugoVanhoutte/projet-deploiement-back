@@ -1,14 +1,12 @@
-<?php  
+<?php
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
-use App\State\SaveMediaObject;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -66,7 +64,7 @@ class MediaObject
     private ?string $filePath = null;
 
     #[ORM\ManyToOne(targetEntity: Ads::class, inversedBy: 'mediaObject')]
-    #[ORM\JoinColumn(onDelete: "CASCADE", nullable: true)]
+    #[ORM\JoinColumn(onDelete: 'CASCADE', nullable: true)]
     private ?Ads $ads = null;
 
     #[ORM\Column(type: 'datetime', nullable: true)]

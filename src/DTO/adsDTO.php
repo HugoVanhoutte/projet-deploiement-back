@@ -17,8 +17,20 @@ class adsDTO
         $this->reportCount = $reportCount;
     }
 
-    public function getId() { return $this->id; }
-    public function getTitle() { return $this->title; }
-    public function getUserName() { return $this->userName; }
-    public function getReportCount() { return $this->reportCount; }
+    public function getId()
+    {
+        return $this->id;
+    }
+    public function getTitle()
+    {
+        return $this->title;
+    }
+    public function getUserName()
+    {
+        return $this->userName;
+    }
+    public function getReportCount()
+    {
+        return $this->reportCount;
+    }
 }

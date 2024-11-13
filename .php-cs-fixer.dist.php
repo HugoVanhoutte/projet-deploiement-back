@@ -1,13 +1,14 @@
 <?php
 
-$finder = (new PhpCsFixer\Finder())
-    ->in(__DIR__)
-    ->exclude('var')
-;
+$finder = PhpCsFixer\Finder::create()
+    ->in(__DIR__);
 
 return (new PhpCsFixer\Config())
+    ->setRiskyAllowed(true)
     ->setRules([
-        '@Symfony' => true,
+        '@PSR12' => true,
+        'array_syntax' => ['syntax' => 'short'],
+        'single_quote' => true,
+        'no_unused_imports' => true,
     ])
-    ->setFinder($finder)
-;
+    ->setFinder($finder);

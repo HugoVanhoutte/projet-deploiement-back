@@ -1,11 +1,15 @@
-<?php namespace App\Tests\Entity ;
+<?php
+
+namespace App\Tests\Entity ;
 
 use App\Entity\Ads ;
 use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class AdsTest  extends KernelTestCase{
-    public function testValidEntity(){
+class AdsTest extends KernelTestCase
+{
+    public function testValidEntity()
+    {
         $user = new User();
         $user->setEmail('test@example.com')
              ->setPassword('password')
@@ -22,7 +26,7 @@ class AdsTest  extends KernelTestCase{
         ->setVerified('0');
         $validator = self::getContainer()->get('validator');
         $errors = $validator->validate($ads);
-        
+
         // Vérifier qu'il n'y a pas d'erreurs
         $this->assertCount(0, $errors);
     }

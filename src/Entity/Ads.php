@@ -2,8 +2,6 @@
 
 namespace App\Entity;
 
-use App\Entity\User;
-use App\Entity\Categories;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Post;
@@ -16,6 +14,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+
 #[ORM\Entity(repositoryClass: AdsRepository::class)]
 #[ApiResource(
     normalizationContext:['groups' => ['ads:read']],
@@ -23,57 +22,59 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
          new Get(
              uriTemplate: '/api/ads/detail/{id}',
-             name:"app_ads_detail"
-         ), 
+             name:'app_ads_detail'
+         ),
         /*OK*/new Get(
             security: "is_granted('ROLE_ADMIN')",
-            description: "List all  ads.", 
+            description: 'List all  ads.',
             uriTemplate: '/api/ads/admin/listing',
             name:'app_ads_admin_listing'
         ),
         new Get(
-           // description: "List all  ads  with isvirefied is ok.", 
+            // description: "List all  ads  with isvirefied is ok.",
             uriTemplate: '/api/ads/listing',
             name:'app_ads_listing'
         ),
         /*OK*/new Get(
             security: "is_granted('ROLE_ADMIN')",
-            description: "List all  ads  with isvirefied is ok.", 
+            description: 'List all  ads  with isvirefied is ok.',
             uriTemplate: '/api/ads/admin/detail/{id}',
             name:'app_ads_admin_detail'
         ),
         new Post(), // conserver l'opération de création
-        /*OK*/new Put( 
+        /*OK*/new Put(
             security: "is_granted('ROLE_ADMIN')",
             uriTemplate: '/api/ads/verified/{adsId}',
             name:'app_ads_admin_changeVerfied',
         ), // conserver l'opération de mise à jour
-        /*OK*/new delete(security: "is_granted('ROLE_ADMIN')",
+        /*OK*/new delete(
+            security: "is_granted('ROLE_ADMIN')",
             uriTemplate: '/api/ads/adsId}',
-            name:'app_ads_admin_delete',),
-        /*OK*/new Delete( 
+            name:'app_ads_admin_delete',
+        ),
+        /*OK*/new Delete(
             security: "is_granted('ROLE_USER')",
-            description: "Delete an ads.", 
+            description: 'Delete an ads.',
             uriTemplate: '/api/ads/delete/{adsId}/{userId}',
             name:'app_ads_delete',
-        ), 
-        /*OK*/new Post(   
-             security: "is_granted('ROLE_USER')",
-             description: "Create an ads.", 
-             uriTemplate: '/api/ads/create',
-             name:'app_ads_create',
-        ) ,
-        /*OK*/new Get(   
+        ),
+        /*OK*/new Post(
             security: "is_granted('ROLE_USER')",
-            description: "say reporting on ads.", 
+            description: 'Create an ads.',
+            uriTemplate: '/api/ads/create',
+            name:'app_ads_create',
+        ) ,
+        /*OK*/new Get(
+            security: "is_granted('ROLE_USER')",
+            description: 'say reporting on ads.',
             uriTemplate: '/api/ads/reporting/{adsId}/{userId}',
             name:'app_ads_reporting',
         ) ,
         new Get(
-            description: "search some ads by title, description, zipcode", 
+            description: 'search some ads by title, description, zipcode',
             uriTemplate: '/api/ads/search/{search}',
             name:'app_ads_search',
-        )  
+        )
     ]
 )]
 class Ads
@@ -86,23 +87,23 @@ class Ads
 
     #[ORM\Column(length: 50)]
     #[Groups(['ads:read','ads:write'])]
-    #[Assert\Regex('/^(?!.*([a-z0-9 \-\.\'])\1{10,50}).*$/', message: "title")] 
-    
+    #[Assert\Regex('/^(?!.*([a-z0-9 \-\.\'])\1{10,50}).*$/', message: 'title')]
+
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT)]
     #[Groups(['ads:read','ads:write'])]
-    #[Assert\Regex('/^[a-zA-Z0-9àâäéèêëîïôöùûüÿçÀÂÄÉÈÊËÎÏÔÖÙÛÜŸÇ!?;\-,\n ]{50,}$/', message: "description")] 
-    
+    #[Assert\Regex('/^[a-zA-Z0-9àâäéèêëîïôöùûüÿçÀÂÄÉÈÊËÎÏÔÖÙÛÜŸÇ!?;\-,\n ]{50,}$/', message: 'description')]
+
     private ?string $description = null;
 
     #[ORM\Column]
-    #[Assert\Regex('/^[0-9]{1,6}$/', message: "price")]  
+    #[Assert\Regex('/^[0-9]{1,6}$/', message: 'price')]
     private ?int $price = null;
 
     #[ORM\Column(length: 5)]
     #[Groups(['ads:read','ads:write'])]
-    #[Assert\Regex('/^[0-9]{5}$/', message: "zipCode")]
+    #[Assert\Regex('/^[0-9]{5}$/', message: 'zipCode')]
     private ?string $zipCode = null;
 
     #[ORM\Column]
@@ -115,14 +116,14 @@ class Ads
 
     #[ORM\Column]
     #[Groups(['ads:read','ads:write'])]
-    #[Assert\Regex('/^\d+$/', message: "length")]
-    #[Assert\Type(type: 'integer', message: "length")]
+    #[Assert\Regex('/^\d+$/', message: 'length')]
+    #[Assert\Type(type: 'integer', message: 'length')]
     private ?int $length = null;
 
     #[ORM\Column]
     #[Groups(['ads:read','ads:write'])]
-    #[Assert\Regex('/^\d+$/', message: "height")]
-    #[Assert\Type(type: 'integer', message: "height")]
+    #[Assert\Regex('/^\d+$/', message: 'height')]
+    #[Assert\Type(type: 'integer', message: 'height')]
     private ?int $height = null;
 
     #[ORM\Column(nullable: true)]
@@ -131,7 +132,7 @@ class Ads
 
     #[ORM\Column]
     #[Groups(['ads:read','ads:write'])]
-    #[Assert\Type(type: ['boolean', ],message:"isVerified")]
+    #[Assert\Type(type: ['boolean', ], message:'isVerified')]
     private ?bool $isVerified = null;
 
     #[ORM\ManyToOne()]
