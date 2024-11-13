@@ -71,14 +71,22 @@ public function delete(
 
     if ($user) {
         // Récupérer toutes les annonces de l'utilisateur
-        $ads = $adsRepository->findBy(['user' => $id]);
-        foreach ($ads as $ad) {
-            $mediaObjects = $mediaObjectRepository->findBy(['ads' => $ad->getId()]);
+        $adsList = $adsRepository->findBy(['user' => $user]);
+
+        foreach ($adsList as $ad) {
+            $ad->removeReporting($user);
+            $user->removeIsFavorite($ad);
+
+            $mediaObjects = $mediaObjectRepository->findBy(['ads' => $ad]);
             foreach ($mediaObjects as $mediaObject) {
                 $entityManager->remove($mediaObject);
             }
             $entityManager->remove($ad);
         }
+
+        
+            
+            
         // Supprimer l'utilisateur
         $entityManager->remove($user);
         $entityManager->flush();
@@ -108,15 +116,18 @@ public function deleteByAdmin(
 
     if ($user) {
         // Récupérer toutes les annonces de l'utilisateur
-        $ads = $adsRepository->findBy(['user' => $id]);
-        foreach ($ads as $ad) {
-            $mediaObjects = $mediaObjectRepository->findBy(['ads' => $ad->getId()]);
+        $adsList = $adsRepository->findBy(['user' => $user]);
+
+        foreach ($adsList as $ad) {
+            $ad->removeReporting($user);
+            $user->removeIsFavorite($ad);
+
+            $mediaObjects = $mediaObjectRepository->findBy(['ads' => $ad]);
             foreach ($mediaObjects as $mediaObject) {
                 $entityManager->remove($mediaObject);
             }
             $entityManager->remove($ad);
         }
-        // Supprimer l'utilisateur
         $entityManager->remove($user);
         $entityManager->flush();
 

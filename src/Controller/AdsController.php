@@ -82,7 +82,8 @@ class AdsController extends AbstractController
     #[IsGranted(new Expression('is_granted("ROLE_USER")'))]
     public function delete(int $adsId,
     int $userId, 
-    AdsRepository $adsRepository, 
+    AdsRepository $adsRepository,
+    UserRepository $userRepository,
     EntityManagerInterface $entityManager,
     MediaObjectRepository $mediaObjectRepository): Response
     {
@@ -97,7 +98,9 @@ class AdsController extends AbstractController
                 // Supprimer le fichier associé
                 $entityManager->remove($mediaObject);
             }
-
+            $user = $userRepository->find($userId);
+            $ads->removeReporting($user);
+            $user->removeIsFavorite($ads);
             $entityManager->remove($entityManager->getRepository(Ads::class)->find($adsId));
             
             $entityManager->flush();
@@ -139,6 +142,7 @@ class AdsController extends AbstractController
     public function deleteByAdmin(int $adsId,
     AdsRepository $adsRepository, 
     EntityManagerInterface $entityManager,
+    UserRepository $userRepository,
     MediaObjectRepository $mediaObjectRepository): Response
     {
         $result = $adsRepository->find($adsId);
@@ -146,6 +150,10 @@ class AdsController extends AbstractController
             foreach ($result->getIsIn() as $categorie) {
                 $result->removeIsIn($categorie);
             }
+            $result->removeReporting($result->getUser());
+            $ads = $adsRepository->find($adsId);
+            $user = $userRepository->find($result->getUser());
+            $user->removeIsFavorite($ads);
             // Récupérer le MediaObject associé à cette annonce
             $mediaObject = $mediaObjectRepository->findBy(['ads' => $adsId]);
             for($i=0;$i<count($mediaObject);$i++){
@@ -176,12 +184,12 @@ class AdsController extends AbstractController
         $result = $adsRepository->findAllByUser();
 
         $adsData = array_map(function ($ad) {
-        return [
-            "id"=>$ad->getId(),
-            'title' => $ad->getTitle(),
-            'userName' => $ad->getUserName(),
-            
-        ];
+            return [
+                "id" => $ad->getId(),
+                'title' => $ad->getTitle(),
+                'userName' => $ad->getUserName(),
+                'reportCount' => $ad->getReportCount(),
+            ];
     }, $result);
         if($result>0){
             return new Response(

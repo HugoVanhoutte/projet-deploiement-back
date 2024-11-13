@@ -42,13 +42,16 @@ class AdsRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
-   public function findAllByUser():array{
-    return $this->createQueryBuilder('a')
-        ->select('NEW App\\DTO\\adsDTO(a.id, a.title, u.userName)')
-        ->innerJoin("a.user","u")
-        ->getQuery()
-        ->getResult();
-   }
+    public function findAllByUser(): array
+    {
+        return $this->createQueryBuilder('a')
+            ->select('NEW App\\DTO\\adsDTO(a.id, a.title, u.userName, COUNT(r.id) AS reportCount)')
+            ->innerJoin('a.user', 'u')
+            ->leftJoin('a.reporting', 'r') 
+            ->groupBy('a.id')
+            ->getQuery()
+            ->getResult();
+    }
    public function findAllByVerified():array{
     return $this->createQueryBuilder('a')
         ->select('NEW App\\DTO\\adsListingUserDTO(a.id, a.title,a.price,a.description ,u.userName)')
