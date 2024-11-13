@@ -3,19 +3,21 @@
 namespace App\Controller;
 
 use App\Entity\Ads;
-use App\Entity\MediaObject;
 use App\Entity\User;
+use App\Entity\Categories;
+use App\Entity\MediaObject;
 use App\Repository\AdsRepository;
-use App\Repository\MediaObjectRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Repository\MediaObjectRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class AdsController extends AbstractController
 {
@@ -37,6 +39,13 @@ class AdsController extends AbstractController
 
     $ad->setHeight($jsonData['height']);
     $ad->setImages($jsonData['images']);
+    foreach($jsonData['categories'] as $categorie){
+        $role = $entityManager->getRepository(Categories::class)->findOneBy(['id' => $categorie]);
+        if ($role) {
+            $ad->addIsIn($role);
+        }
+    }
+    
     $media = new MediaObject();
     $media->setAds($ad);
     $user = $entityManager->getRepository(User::class)->find($jsonData['userId'] ?? null);
@@ -72,18 +81,18 @@ class AdsController extends AbstractController
     #[Route('/api/ads/delete/{adsId}/{userId}', name: 'app_ads_delete')]
     #[IsGranted(new Expression('is_granted("ROLE_USER")'))]
     public function delete(int $adsId,
-    MediaObject $mediaObject, 
     int $userId, 
     AdsRepository $adsRepository, 
     EntityManagerInterface $entityManager,
-    MediaObjectRepository $mediaObjectRepository,): Response
+    MediaObjectRepository $mediaObjectRepository): Response
     {
-        $result = $adsRepository->deleteByIdUser($adsId, $userId);
-        if($result){
-
+        $ads = $adsRepository->findOneBy(['id' => $adsId, 'user' => $userId]);
+        if($ads){
+            foreach ($ads->getIsIn() as $categorie) {
+                $ads->removeIsIn($categorie);
+            }
             // Récupérer le MediaObject associé à cette annonce
             $mediaObject = $mediaObjectRepository->findOneBy(['ads' => $adsId]);
-
             if ($mediaObject) {
                 // Supprimer le fichier associé
                 $entityManager->remove($mediaObject);
@@ -134,7 +143,9 @@ class AdsController extends AbstractController
     {
         $result = $adsRepository->find($adsId);
         if($result){
-
+            foreach ($result->getIsIn() as $categorie) {
+                $result->removeIsIn($categorie);
+            }
             // Récupérer le MediaObject associé à cette annonce
             $mediaObject = $mediaObjectRepository->findBy(['ads' => $adsId]);
             for($i=0;$i<count($mediaObject);$i++){
@@ -257,5 +268,32 @@ class AdsController extends AbstractController
                 Response::HTTP_BAD_REQUEST
             );
         }     
+    }
+    #[Route('/api/ads/reporting/{adsId}/{userId}', name: 'app_ads_reporting', methods: ['GET'])]
+    #[IsGranted(new Expression('is_granted("ROLE_USER")'))]
+    public function reporting(
+        int $adsId,
+        int $userId,
+        AdsRepository $adsRepository,
+        UserRepository $userRepository,
+        EntityManagerInterface $entityManager
+    ): JsonResponse {
+        $user = $userRepository->find($userId);
+        if (!$user) {
+            return new JsonResponse(['message' => "User not found"], Response::HTTP_NOT_FOUND);
+        }
+        $ads = $adsRepository->find($adsId);
+        if (!$ads) {
+            return new JsonResponse(['message' => "Ad not found"], Response::HTTP_NOT_FOUND);
+        }
+        if (!$ads->getReporting()->contains($user)) {
+            $ads->addReporting($user);
+            $message = "Ad reporting";
+        }
+
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        return new JsonResponse(['message' => $message], Response::HTTP_OK);
     }
 }

@@ -25,7 +25,7 @@ use Symfony\Component\Validator\Constraints as Assert;
              uriTemplate: '/api/ads/detail/{id}',
              name:"app_ads_detail"
          ), 
-        new Get(
+        /*OK*/new Get(
             security: "is_granted('ROLE_ADMIN')",
             description: "List all  ads.", 
             uriTemplate: '/api/ads/admin/listing',
@@ -36,33 +36,39 @@ use Symfony\Component\Validator\Constraints as Assert;
             uriTemplate: '/api/ads/listing',
             name:'app_ads_listing'
         ),
-        new Get(
+        /*OK*/new Get(
             security: "is_granted('ROLE_ADMIN')",
             description: "List all  ads  with isvirefied is ok.", 
             uriTemplate: '/api/ads/admin/detail/{id}',
             name:'app_ads_admin_detail'
         ),
         new Post(), // conserver l'opération de création
-        new Put(
-            description: "Delete an ads.", 
+        /*OK*/new Put( 
+            security: "is_granted('ROLE_ADMIN')",
             uriTemplate: '/api/ads/verified/{adsId}',
             name:'app_ads_admin_changeVerfied',
         ), // conserver l'opération de mise à jour
-        new delete(security: "is_granted('ROLE_ADMIN')",
+        /*OK*/new delete(security: "is_granted('ROLE_ADMIN')",
             uriTemplate: '/api/ads/adsId}',
             name:'app_ads_admin_delete',),
-        new Delete( 
+        /*OK*/new Delete( 
             security: "is_granted('ROLE_USER')",
             description: "Delete an ads.", 
             uriTemplate: '/api/ads/delete/{adsId}/{userId}',
             name:'app_ads_delete',
         ), 
-        new Post(   
+        /*OK*/new Post(   
              security: "is_granted('ROLE_USER')",
              description: "Create an ads.", 
              uriTemplate: '/api/ads/create',
              name:'app_ads_create',
-        )   
+        ) ,
+        /*OK*/new Get(   
+            security: "is_granted('ROLE_USER')",
+            description: "say reporting on ads.", 
+            uriTemplate: '/api/ads/reporting/{adsId}/{userId}',
+            name:'app_ads_reporting',
+        )  
     ]
 )]
 class Ads
@@ -86,12 +92,12 @@ class Ads
     private ?string $description = null;
 
     #[ORM\Column]
-    #[Assert\Regex('/^[0,9]{1,6}$/', message: "price")]  
+    #[Assert\Regex('/^[0-9]{1,6}$/', message: "price")]  
     private ?int $price = null;
 
     #[ORM\Column(length: 5)]
     #[Groups(['ads:read','ads:write'])]
-    #[Assert\Regex('/^[0,9]{5}$/', message: "zipCode")]
+    #[Assert\Regex('/^[0-9]{5}$/', message: "zipCode")]
     private ?string $zipCode = null;
 
     #[ORM\Column]

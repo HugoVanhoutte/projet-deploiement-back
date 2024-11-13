@@ -34,19 +34,19 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
             uriTemplate: '/api/user/check-username/{username}',
             name:'app_user_check_username'
         ), 
-        new Put(
+        /*OK*/new Put(
             security: "is_granted('ROLE_USER')",
-            description: "Updete his account", 
+            description: "Update his account", 
             uriTemplate: '/api/user/update/{id}',
             name:'app_user_update'
         ), 
-        new Delete(
-            security: "is_granted('ROLE_USER')",
-            description: "Delete his account", 
-            uriTemplate: '/api/user/delete/{id}',
-            name:'app_user_delete'
-        ),
-         new Delete(
+        // new Delete(
+        //     security: "is_granted('ROLE_USER')",
+        //     description: "Delete his account", 
+        //     uriTemplate: '/api/user/delete/{id}',
+        //     name:'app_user_delete'
+        // ),
+         /*OK*/new Delete(
              security: "is_granted('ROLE_ADMIN')",
             description: "Delete an account", 
             uriTemplate: '/api/user/admin/delete/{id}',
@@ -56,7 +56,14 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
             description: "Enregistre un nouveau client.", 
             uriTemplate: '/api/user/register',
             name:'app_user_register',
-        )   
+        ),
+        new Get(   
+            security: "is_granted('ROLE_USER')",
+            description: "change state on favorite.", 
+            uriTemplate: '/api/user/favorite-ads/{adsId}/{userId}',
+            name:'app_user_favorite_ads',
+        ) ,
+         
     ]
 )]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]

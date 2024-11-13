@@ -134,4 +134,106 @@ public function checkUserName(
         );
     }
 }
+
+#[Route('/api/user/favorite-ads/{adsId}/{userId}', name: 'app_user_favorite_ads', methods: ['GET'])]
+#[IsGranted(new Expression('is_granted("ROLE_USER")'))]
+public function favorite(
+    int $adsId,
+    int $userId,
+    AdsRepository $adsRepository,
+    UserRepository $userRepository,
+    EntityManagerInterface $entityManager
+): JsonResponse {
+    $user = $userRepository->find($userId);
+    if (!$user) {
+        return new JsonResponse(['message' => "User not found"], Response::HTTP_NOT_FOUND);
+    }
+    $ads = $adsRepository->find($adsId);
+    if (!$ads) {
+        return new JsonResponse(['message' => "Ad not found"], Response::HTTP_NOT_FOUND);
+    }
+    if ($user->getIsFavorite()->contains($ads)) {
+       $user->removeIsFavorite($ads);
+        $message = "Ad removed from favorites";
+    } else {
+        $user->addIsFavorite($ads);
+        $message = "Ad added to favorites";
+    }
+
+    $entityManager->persist($user);
+    $entityManager->flush();
+
+    return new JsonResponse(['message' => $message], Response::HTTP_OK);
+}
+
+#[Route('/api/user/update/{id}', name: 'app_user_update', methods: ['PUT'])]
+#[IsGranted(new Expression('is_granted("ROLE_USER")'))]
+public function update(
+    int $id,
+    EntityManagerInterface $entityManager,
+    ValidatorInterface $validator,
+    Request $request,
+    UserPasswordHasherInterface $passwordHasher
+): Response {
+    // Rechercher l'utilisateur par son ID
+    $client = $entityManager->getRepository(User::class)->find($id);
+
+    // Vérifier si l'utilisateur existe
+    if (!$client) {
+        return new JsonResponse(
+            ["message" => "User not found"],
+            Response::HTTP_NOT_FOUND
+        );
+    }
+
+    // Décoder les données JSON envoyées dans la requête
+    $data = json_decode($request->getContent(), true);
+
+    // Vérifier la présence des clés nécessaires dans les données JSON
+    if (!$data || !isset($data['email'], 
+    $data['password'], 
+    $data['username'], 
+    $data['phone'], 
+    $data['firstName'], 
+    $data['lastName'])) {
+        return new JsonResponse(
+            ["message" => "Invalid data provided"],
+            Response::HTTP_BAD_REQUEST
+        );
+    }
+
+    // Mettre à jour les données de l'utilisateur
+    $client->setEmail($data['email']);
+    $client->setRoles($data['roles'] ?? $client->getRoles()); // Garde les rôles existants s'ils ne sont pas fournis
+    $client->setUserName($data['username']);
+    $client->setPhone($data['phone']);
+    $client->setFirstName($data['firstName']);
+    $client->setLastName($data['lastName']);
+
+    // Hashage du mot de passe
+    $hashedPassword = $passwordHasher->hashPassword($client, $data['password']);
+    $client->setPassword($hashedPassword);
+
+    // Validation des données mises à jour
+    $errors = $validator->validate($client);
+    if (count($errors) > 0) {
+        $errorMessages = [];
+        foreach ($errors as $error) {
+            $errorMessages[] = $error->getMessage();
+        }
+        return new JsonResponse(
+            ['errors' => $errorMessages],
+            Response::HTTP_BAD_REQUEST
+        );
+    }
+
+    // Persister et sauvegarder les changements
+    $entityManager->flush();
+
+    return new JsonResponse(
+        ["message" => "User updated successfully"],
+        Response::HTTP_OK,
+        ['Content-Type' => 'application/json']
+    );
+}
 }
