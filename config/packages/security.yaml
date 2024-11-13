@@ -45,8 +45,6 @@ security:
         - { path: ^/api/ads/reporting/:adsId/:userId, roles: ROLE_USER }
         - { path: ^/api/ads/create, roles: ROLE_USER }
         - { path: ^/api/ads/delete/:adsId/:userId, roles: ROLE_USER }
-        
-        - { path: ^/api/user/update/:id, roles: ROLE_USER }
         - { path: ^/api/user/favorite-ads/:adsId/:userId, roles: ROLE_USER }
         # Public Access
         - { path: ^/$, roles: PUBLIC_ACCESS }

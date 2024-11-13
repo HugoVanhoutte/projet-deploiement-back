@@ -40,12 +40,12 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
             uriTemplate: '/api/user/update/{id}',
             name:'app_user_update'
         ), 
-        // new Delete(
-        //     security: "is_granted('ROLE_USER')",
-        //     description: "Delete his account", 
-        //     uriTemplate: '/api/user/delete/{id}',
-        //     name:'app_user_delete'
-        // ),
+        /*OK*/new Delete(
+            security: "is_granted('ROLE_USER')",
+            description: "Delete his account", 
+            uriTemplate: '/api/user/delete/{id}',
+            name:'app_user_delete'
+        ),
          /*OK*/new Delete(
              security: "is_granted('ROLE_ADMIN')",
             description: "Delete an account", 

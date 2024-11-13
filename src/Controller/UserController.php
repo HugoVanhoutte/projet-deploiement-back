@@ -58,6 +58,42 @@ public function index( EntityManagerInterface $entityManager, ValidatorInterface
         ['Content-Type' => 'application/json']
     );
 }
+#[Route('/api/user/delete/{id}', name: 'app_user_delete', methods: ['DELETE'])]
+#[IsGranted(new Expression('is_granted("ROLE_USER")'))]
+public function delete(
+    int $id,
+    EntityManagerInterface $entityManager,
+    UserRepository $userRepository,
+    MediaObjectRepository $mediaObjectRepository,
+    AdsRepository $adsRepository
+) {
+    $user = $userRepository->find($id);
+
+    if ($user) {
+        // Récupérer toutes les annonces de l'utilisateur
+        $ads = $adsRepository->findBy(['user' => $id]);
+        foreach ($ads as $ad) {
+            $mediaObjects = $mediaObjectRepository->findBy(['ads' => $ad->getId()]);
+            foreach ($mediaObjects as $mediaObject) {
+                $entityManager->remove($mediaObject);
+            }
+            $entityManager->remove($ad);
+        }
+        // Supprimer l'utilisateur
+        $entityManager->remove($user);
+        $entityManager->flush();
+
+        return new JsonResponse(
+            ["message" => "User and related ads deleted successfully"],
+            Response::HTTP_OK
+        );
+    } else {
+        return new JsonResponse(
+            ['errors' => "User not found"],
+            Response::HTTP_BAD_REQUEST
+        );
+    }
+}
 
 #[Route('/api/user/admin/delete/{id}', name: 'app_user_admin_delete', methods: ['DELETE'])]
 #[IsGranted(new Expression('is_granted("ROLE_ADMIN")'))]
