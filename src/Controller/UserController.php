@@ -24,6 +24,12 @@ class UserController extends AbstractController
     {
 
         $data = $request->getContent();
+        if( !isset($jsonData['email'])or !isset($jsonData['roles'])or !isset($jsonData['password'])or !isset($jsonData['username'])or !isset($jsonData['phone']) or !isset($jsonData['firstName']) or !isset($jsonData['lastName'])){
+            return new JsonResponse(
+                ['result' => "data missing"],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
         // Traite les données (par exemple, décoder le JSON si nécessaire)
         $jsonData = json_decode($data, true);
         $client = new User();

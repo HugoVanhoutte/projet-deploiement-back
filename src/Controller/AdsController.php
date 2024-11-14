@@ -30,6 +30,17 @@ class AdsController extends AbstractController
         // Traite les données (par exemple, décoder le JSON si nécessaire)
         $jsonData = json_decode($data, true);
         $ad = new Ads();
+
+  
+        if( !isset($jsonData['title'])or !isset($jsonData['description'])or !isset($jsonData['price'])or !isset($jsonData['zipCode'])or !isset($jsonData['width'])or !isset($jsonData['length']) or !isset($jsonData['height']) ){
+            return new JsonResponse(
+                ['result' => "data missing"],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
+
+
         $ad->setTitle($jsonData['title']);
         $ad->setDescription($jsonData['description']);
         $ad->setPrice($jsonData['price']);
@@ -38,7 +49,10 @@ class AdsController extends AbstractController
         $ad->setLength($jsonData['length']);
 
         $ad->setHeight($jsonData['height']);
-        $ad->setImages($jsonData['images']);
+        if(isset($jsonData['images'])){
+            $ad->setImages($jsonData['images']);
+        }
+        
         foreach ($jsonData['categories'] as $categorie) {
             $role = $entityManager->getRepository(Categories::class)->findOneBy(['id' => $categorie]);
             if ($role) {

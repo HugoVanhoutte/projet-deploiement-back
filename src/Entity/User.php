@@ -67,7 +67,7 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 )]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[UniqueEntity(fields: ['email'], message: 'email')]
-#[UniqueEntity(fields: ['userName'], message:'username')]
+#[UniqueEntity(fields: ['userName'], message:'userName')]
 #[UniqueEntity(fields: ['phone'], message:'phone')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -93,7 +93,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\Column]
     #[Assert\PasswordStrength([
-        'minScore' => PasswordStrength::STRENGTH_VERY_STRONG, // Very strong password required
+        'minScore' => PasswordStrength::STRENGTH_VERY_STRONG, 
+        'message' =>'password'
     ])]
     private ?string $password = null;
 

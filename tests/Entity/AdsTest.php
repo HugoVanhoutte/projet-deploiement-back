@@ -15,15 +15,15 @@ class AdsTest extends KernelTestCase
              ->setPassword('password')
              ->setRoles(['ROLE_USER']);
         $ads = (new Ads())
-        ->setUser($user)
-        ->setTitle('aaaa')
-        ->setDescription('zzzzzz')
-        ->setPrice('1111')
-        ->setZipCode('11111')
-        ->setWidth('111')
-        ->setlength('111')
-        ->setHeight('11')
-        ->setVerified('0');
+            ->setUser($user)
+            ->setTitle('aaaa')
+            ->setDescription('zzzzzzaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+            ->setPrice('1111')
+            ->setZipCode(11111)
+            ->setWidth(111)
+            ->setlength(111)
+            ->setHeight(11)
+            ->setVerified(0);
         $validator = self::getContainer()->get('validator');
         $errors = $validator->validate($ads);
 
