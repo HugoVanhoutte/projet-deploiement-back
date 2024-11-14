@@ -22,16 +22,18 @@ class UserController extends AbstractController
     #[Route('/api/user/register', name: 'app_user_register')]
     public function index(EntityManagerInterface $entityManager, ValidatorInterface $validator, Request $request, UserPasswordHasherInterface $passwordHasher): Response
     {
+        try{
 
+        
         $data = $request->getContent();
-        if( !isset($jsonData['email'])or !isset($jsonData['roles'])or !isset($jsonData['password'])or !isset($jsonData['username'])or !isset($jsonData['phone']) or !isset($jsonData['firstName']) or !isset($jsonData['lastName'])){
-            return new JsonResponse(
-                ['result' => "data missing"],
-                Response::HTTP_BAD_REQUEST
-            );
-        }
         // Traite les données (par exemple, décoder le JSON si nécessaire)
         $jsonData = json_decode($data, true);
+        if ($jsonData === null) {
+            return new JsonResponse(['result' => 'Invalid JSON format'], Response::HTTP_BAD_REQUEST);
+        }
+        if (!isset($jsonData['email'], $jsonData['roles'], $jsonData['password'], $jsonData['username'], $jsonData['phone'], $jsonData['firstName'], $jsonData['lastName'])) {
+            return new JsonResponse(['result' => 'Data missing'], Response::HTTP_BAD_REQUEST);
+        }
         $client = new User();
         $client->setEmail($jsonData['email']);
         $client->setRoles($jsonData['roles']);
@@ -43,6 +45,7 @@ class UserController extends AbstractController
         $client->setLastName($jsonData['lastName']);
         $errors = $validator->validate($client);
 
+        $errors = $validator->validate($client);
         if (count($errors) > 0) {
             $errorMessages = [];
             foreach ($errors as $error) {
@@ -50,7 +53,7 @@ class UserController extends AbstractController
             }
 
             return new JsonResponse(
-                ['result' => $errorMessages],
+                ['result' => 'Validation failed', 'errors' => $errorMessages],
                 Response::HTTP_BAD_REQUEST
             );
         }
@@ -61,6 +64,9 @@ class UserController extends AbstractController
             Response::HTTP_CREATED,
             ['Content-Type' => 'application/json']
         );
+        }catch (\Exception $e) {
+            return new JsonResponse(['result' => 'Database error', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
     #[Route('/api/user/delete/{id}', name: 'app_user_delete', methods: ['DELETE'])]
     #[IsGranted(new Expression('is_granted("ROLE_USER")'))]
@@ -71,6 +77,9 @@ class UserController extends AbstractController
         MediaObjectRepository $mediaObjectRepository,
         AdsRepository $adsRepository
     ) {
+        try{
+
+        
         $user = $userRepository->find($id);
 
         if ($user) {
@@ -105,6 +114,9 @@ class UserController extends AbstractController
                 Response::HTTP_BAD_REQUEST
             );
         }
+        }catch (\Exception $e) {
+            return new JsonResponse(['result' => 'Database error', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     #[Route('/api/user/admin/delete/{id}', name: 'app_user_admin_delete', methods: ['DELETE'])]
@@ -116,6 +128,7 @@ class UserController extends AbstractController
         MediaObjectRepository $mediaObjectRepository,
         AdsRepository $adsRepository
     ) {
+        try{
         $user = $userRepository->find($id);
 
         if ($user) {
@@ -145,6 +158,9 @@ class UserController extends AbstractController
                 Response::HTTP_BAD_REQUEST
             );
         }
+    }catch (\Exception $e) {
+        return new JsonResponse(['result' => 'Database error', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
     }
 
 
@@ -154,6 +170,7 @@ class UserController extends AbstractController
         string $email,
         UserRepository $userRepository
     ) {
+        try{
         $user = $userRepository->findBy(['email' => $email]);
 
         if ($user) {
@@ -167,12 +184,16 @@ class UserController extends AbstractController
                 Response::HTTP_OK
             );
         }
+    }catch (\Exception $e) {
+        return new JsonResponse(['result' => 'Database error', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
     }
     #[Route('/api/user/check-username/{username}', name: 'app_user_check_username', methods: ['GET'])]
     public function checkUserName(
         string $username,
         UserRepository $userRepository
     ) {
+        try{
         $user = $userRepository->findBy(['userName' => $username]);
 
         if ($user) {
@@ -186,6 +207,9 @@ class UserController extends AbstractController
                 Response::HTTP_OK
             );
         }
+    }catch (\Exception $e) {
+        return new JsonResponse(['result' => 'Database error', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
     }
 
     #[Route('/api/user/favorite-ads/{adsId}/{userId}', name: 'app_user_favorite_ads', methods: ['GET'])]
@@ -197,6 +221,7 @@ class UserController extends AbstractController
         UserRepository $userRepository,
         EntityManagerInterface $entityManager
     ): JsonResponse {
+        try{
         $user = $userRepository->find($userId);
         if (!$user) {
             return new JsonResponse(['message' => 'User not found'], Response::HTTP_NOT_FOUND);
@@ -217,6 +242,9 @@ class UserController extends AbstractController
         $entityManager->flush();
 
         return new JsonResponse(['message' => $message], Response::HTTP_OK);
+        }catch (\Exception $e) {
+            return new JsonResponse(['result' => 'Database error', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     #[Route('/api/user/update/{id}', name: 'app_user_update', methods: ['PUT'])]
@@ -228,6 +256,7 @@ class UserController extends AbstractController
         Request $request,
         UserPasswordHasherInterface $passwordHasher
     ): Response {
+        try{
         // Rechercher l'utilisateur par son ID
         $client = $entityManager->getRepository(User::class)->find($id);
 
@@ -288,5 +317,8 @@ class UserController extends AbstractController
             Response::HTTP_OK,
             ['Content-Type' => 'application/json']
         );
+      }catch (\Exception $e) {
+            return new JsonResponse(['result' => 'Database error', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }

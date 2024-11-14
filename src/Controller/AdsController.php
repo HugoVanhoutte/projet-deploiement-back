@@ -25,7 +25,7 @@ class AdsController extends AbstractController
     #[IsGranted(new Expression('is_granted("ROLE_USER")'))]
     public function index(EntityManagerInterface $entityManager, ValidatorInterface $validator, Request $request): Response
     {
-
+        try{
         $data = $request->getContent();
         // Traite les données (par exemple, décoder le JSON si nécessaire)
         $jsonData = json_decode($data, true);
@@ -91,6 +91,9 @@ class AdsController extends AbstractController
             Response::HTTP_CREATED,
             ['Content-Type' => 'application/json']
         );
+    }catch (\Exception $e) {
+        return new JsonResponse(['result' => 'Database error', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
     }
     #[Route('/api/ads/delete/{adsId}/{userId}', name: 'app_ads_delete')]
     #[IsGranted(new Expression('is_granted("ROLE_USER")'))]
@@ -102,6 +105,7 @@ class AdsController extends AbstractController
         EntityManagerInterface $entityManager,
         MediaObjectRepository $mediaObjectRepository
     ): Response {
+        try{
         $ads = $adsRepository->findOneBy(['id' => $adsId, 'user' => $userId]);
         if ($ads) {
             foreach ($ads->getIsIn() as $categorie) {
@@ -132,12 +136,16 @@ class AdsController extends AbstractController
                 Response::HTTP_BAD_REQUEST
             );
         }
+    }catch (\Exception $e) {
+        return new JsonResponse(['result' => 'Database error', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
     }
 
     #[Route('/api/ads/verified/{adsId}', name: 'app_ads_admin_changeVerfied')]
     #[IsGranted(new Expression('is_granted("ROLE_ADMIN")'))]
     public function changeIsVerified(int $adsId, AdsRepository $adsRepository): Response
     {
+        try{
         $result = $adsRepository->isVerified($adsId);
         if ($result > 0) {
             return new Response(
@@ -151,6 +159,9 @@ class AdsController extends AbstractController
                 Response::HTTP_BAD_REQUEST
             );
         }
+    }catch (\Exception $e) {
+        return new JsonResponse(['result' => 'Database error', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
     }
     #[Route('/api/ads/{adsId}', name: 'app_ads_admin_delete')]
     #[IsGranted(new Expression('is_granted("ROLE_ADMIN")'))]
@@ -161,6 +172,7 @@ class AdsController extends AbstractController
         UserRepository $userRepository,
         MediaObjectRepository $mediaObjectRepository
     ): Response {
+        try{
         $result = $adsRepository->find($adsId);
         if ($result) {
             foreach ($result->getIsIn() as $categorie) {
@@ -191,12 +203,16 @@ class AdsController extends AbstractController
                 Response::HTTP_BAD_REQUEST
             );
         }
+    }catch (\Exception $e) {
+        return new JsonResponse(['result' => 'Database error', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
     }
 
     #[Route('/api/ads/admin/listing', name: 'app_ads_admin_listing')]
     #[IsGranted(new Expression('is_granted("ROLE_ADMIN")'))]
     public function listIsVerified(AdsRepository $adsRepository): Response
     {
+        try{
         $result = $adsRepository->findAllByUser();
 
         $adsData = array_map(function ($ad) {
@@ -219,12 +235,16 @@ class AdsController extends AbstractController
                 Response::HTTP_BAD_REQUEST
             );
         }
+    }catch (\Exception $e) {
+        return new JsonResponse(['result' => 'Database error', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
     }
 
 
     #[Route('/api/ads/listing', name: 'app_ads_listing', methods :['GET'])]
     public function listAllAds(AdsRepository $adsRepository): Response
     {
+        try{
         $result = $adsRepository->findAllByVerified();
 
         $adsData = array_map(function ($ad) {
@@ -248,6 +268,9 @@ class AdsController extends AbstractController
                 Response::HTTP_BAD_REQUEST
             );
         }
+    }catch (\Exception $e) {
+        return new JsonResponse(['result' => 'Database error', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
     }
 
 
@@ -255,6 +278,7 @@ class AdsController extends AbstractController
     #[IsGranted(new Expression('is_granted("ROLE_ADMIN")'))]
     public function detailAdminAds(int $id, AdsRepository $adsRepository, MediaObjectRepository $media): Response
     {
+        try{
         $result = $adsRepository->findAdsByIAdmin($id);
         for ($i = 0;$i < count($result);$i++) {
             $result[$i]->image = $media->findBy(['ads' => $result[$i]->id]);
@@ -271,11 +295,15 @@ class AdsController extends AbstractController
                 Response::HTTP_BAD_REQUEST
             );
         }
+    }catch (\Exception $e) {
+        return new JsonResponse(['result' => 'Database error', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
     }
 
     #[Route('/api/ads/detail/{id}', name: 'app_ads_detail', methods :['GET'])]
     public function detailUserAds(int $id, AdsRepository $adsRepository, MediaObjectRepository $media): Response
     {
+        try{
         $result = $adsRepository->findAdsById($id);
         for ($i = 0;$i < count($result);$i++) {
             $result[$i]->image = $media->findBy(['ads' => $result[$i]->id]);
@@ -292,6 +320,9 @@ class AdsController extends AbstractController
                 Response::HTTP_BAD_REQUEST
             );
         }
+    }catch (\Exception $e) {
+        return new JsonResponse(['result' => 'Database error', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
     }
     #[Route('/api/ads/reporting/{adsId}/{userId}', name: 'app_ads_reporting', methods: ['GET'])]
     #[IsGranted(new Expression('is_granted("ROLE_USER")'))]
@@ -302,6 +333,7 @@ class AdsController extends AbstractController
         UserRepository $userRepository,
         EntityManagerInterface $entityManager
     ): JsonResponse {
+        try{
         $user = $userRepository->find($userId);
         if (!$user) {
             return new JsonResponse(['result' => 'User not found'], Response::HTTP_NOT_FOUND);
@@ -319,12 +351,19 @@ class AdsController extends AbstractController
         $entityManager->flush();
 
         return new JsonResponse(['result' => $message], Response::HTTP_OK);
+    }catch (\Exception $e) {
+        return new JsonResponse(['result' => 'Database error', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
     }
 
     #[Route('/api/ads/search/{search}', name: 'app_ads_search', methods: ['GET'])]
     public function search(string $search, AdsRepository $adsRepository): JsonResponse
     {
+        try{
         $ads = $adsRepository->searchAds($search);
         return new JsonResponse(['result' => $ads], Response::HTTP_OK);
+        }catch (\Exception $e) {
+            return new JsonResponse(['result' => 'Database error', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }

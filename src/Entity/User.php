@@ -111,12 +111,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 100)]
     #[Groups(['user:read','user:write'])]
-    #[Assert\Regex('/^[a-z\-]{2,50}$/', message: 'fristName.regex')]
+    #[Assert\Regex('/^[a-z\-]{2,50}+$/', message: 'fristName.regex')]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 100)]
     #[Groups(['user:read','user:write'])]
-    #[Assert\Regex('/^[a-z\-]{2,50}$/', message: 'lastName.regex')]
+    #[Assert\Regex('/^[a-zA-Z\-]{2,50}+$/', message: 'lastName.regex')]
     private ?string $lastName = null;
 
 
@@ -286,3 +286,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 }
+/**
+ * 
+ */
