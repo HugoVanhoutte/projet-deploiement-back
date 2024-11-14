@@ -93,8 +93,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\Column]
     #[Assert\PasswordStrength([
-        'minScore' => PasswordStrength::STRENGTH_VERY_STRONG, 
-        'message' =>'password'
+        'minScore' => PasswordStrength::STRENGTH_VERY_STRONG,
+        'message' => 'password'
     ])]
     private ?string $password = null;
 
@@ -287,5 +287,5 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 }
 /**
- * 
+ *
  */
